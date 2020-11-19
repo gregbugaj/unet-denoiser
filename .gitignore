@@ -1,4 +1,7 @@
 data/
+logs/
+checkpoints/
+unet_best.params
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
