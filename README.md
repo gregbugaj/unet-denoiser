@@ -26,3 +26,6 @@ https://towardsdatascience.com/u-net-b229b32b4a71#:~:text=Loss%20calculation%20i
 
 ## Data set
 https://primaresearch.org/datasets
+
+https://arxiv.org/pdf/1906.05229.pdf
+The usage of U-Net for pre-processing document images (sibgrapi_pi_cv.pdf)
