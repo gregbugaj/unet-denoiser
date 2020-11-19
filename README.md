@@ -22,3 +22,7 @@ https://towardsdatascience.com/u-net-b229b32b4a71#:~:text=Loss%20calculation%20i
 ## Dependencies 
 
 * MXNET >= 1.7 
+
+
+## Data set
+https://primaresearch.org/datasets
