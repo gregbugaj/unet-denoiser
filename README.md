@@ -29,3 +29,9 @@ https://primaresearch.org/datasets
 
 https://arxiv.org/pdf/1906.05229.pdf
 The usage of U-Net for pre-processing document images (sibgrapi_pi_cv.pdf)
+
+https://github.com/mkisantal/backboned-unet/blob/master/backboned_unet
+https://github.com/chinakook/U-Net/blob/master/model_unet.py
+
+## Network Architecture
+https://www.programmersought.com/article/92255025083/

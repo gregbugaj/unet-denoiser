@@ -9,10 +9,7 @@ import cv2
 import matplotlib.pyplot as plt
 
 from mxnet.gluon import loss as gloss, data as gdata, utils as gutils
-import sys
 import os
-import time
-import numpy
 import argparse
 
 from evaluate import recognize, imwrite, iou_metric
@@ -48,9 +45,6 @@ if __name__ == '__main__':
     if not os.path.exists(dir_out):
         os.makedirs(dir_out)
 
-    ensure_exists(os.path.join(dir_out,'masks'))
-    ensure_exists(os.path.join(dir_out,'segments'))
-
     def get_debug_image(h, w, img, mask):
         #  expand shape from 1 chanel to 3 chanels
         mask = mask[:, :, None] * np.ones(3, dtype=int)[None, None, :]
@@ -58,7 +52,7 @@ if __name__ == '__main__':
 
         debug_img[0:h, :] = img
         debug_img[h:2*h, :] = mask
-        cv2.line(debug_img, (0, h), (debug_img.shape[1], h), 150, 2)
+        cv2.line(debug_img, (0, h), (debug_img.shape[1], h), 150, 1)
         return debug_img
 
     for filename in filenames:

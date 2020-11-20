@@ -334,7 +334,7 @@ if __name__ == '__main__':
     batch_size = args.batch_size
     num_workers = multiprocessing.cpu_count() // 2
     # python ./segmenter.py --checkpoint=load --checkpoint-file ./unet_best.params
-    net = UNet(channels=64, num_class=args.num_classes)
+    net = UNet(channels=16, num_class=args.num_classes)
     # Load checkpoint from file
     if args.checkpoint == 'new':
         print("Starting new training")
@@ -347,8 +347,8 @@ if __name__ == '__main__':
     # https://mxnet.apache.org/versions/1.6/api/python/docs/tutorials/packages/gluon/blocks/hybridize.html
     # net.hybridize() # Causes errror with the SHAPE
     # net.initialize(ctx=ctx)
-    # print(net)
-    # net.summary(nd.ones((1, 3, 512, 512)))  # NCHW (N:batch_size, C:channel, H:height, W:width)
+    print(net)
+    net.summary(nd.ones((1, 3, 64, 256)))  # NCHW (N:batch_size, C:channel, H:height, W:width)
 
     # if True:
     #     sys.exit(1)

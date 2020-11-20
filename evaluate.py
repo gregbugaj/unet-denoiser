@@ -25,8 +25,11 @@ def normalize_image(img):
     # rgb_mean = nd.array([0.93610591, 0.93610591, 0.93610591])
     # rgb_std = nd.array([0.1319155, 0.1319155, 0.1319155])
 
-    rgb_mean = nd.array([0.0, 0.0, 0.0])
-    rgb_std = nd.array([1.0, 1.0, 1.0])
+    rgb_mean = nd.array([0.08080905,0.08080905, 0.08080905])
+    rgb_std = nd.array([0.22641347, 0.22641347, 0.22641347])
+    
+    # rgb_mean = nd.array([0.0, 0.0, 0.0])
+    # rgb_std = nd.array([1.0, 1.0, 1.0])
     
     return (img.astype('float32') / 255.0 - rgb_mean) / rgb_std
     # return (img.astype('float32') / 255.0)
@@ -94,7 +97,7 @@ def recognize(network_parameters, image_path, ctx, debug):
 
     # At one point this can be generalized but right now I don't see this changing 
     n_classes = 2
-    n_channels = 64
+    n_channels = 16
     img_width = 64
     img_height = 256
 
@@ -163,7 +166,7 @@ def imwrite(path, img):
 if __name__ == '__main__':
     args = parse_args()
     args.network_param = './unet_best.params'
-    args.img_path = './data/test/image/000205.jpg'
+    args.img_path = './data/test/image/000089.jpg'
     args.debug = True
 
     ctx = [mx.cpu()]
