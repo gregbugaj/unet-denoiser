@@ -175,6 +175,8 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
     for l in y_line_list:
         cv2.line(img, (0, l), (1000, l), 0, 1)
     '''
+    # (thresh, img) = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+    (thresh, img) = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     return img, y_line_list, text_height
 
 def get_noisy_img(img, y_line_list, text_height):
@@ -289,6 +291,10 @@ def erode_dilate(img, noisy_img):
 
 def write_images(img, noisy_img, debug_img):
     global img_count
+
+    (thresh, img) = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+    (thresh, noisy_img) = cv2.threshold(noisy_img, 127, 255, cv2.THRESH_BINARY)
+    (thresh, debug_img) = cv2.threshold(debug_img, 127, 255, cv2.THRESH_BINARY)
 
     # img       = 255 - cv2.resize(img,       (0,0), fx = 1/scale_w, fy = 1/scale_h)
     # noisy_img = 255 - cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
