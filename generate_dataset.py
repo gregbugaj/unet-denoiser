@@ -77,7 +77,7 @@ font_list = [cv2.FONT_HERSHEY_COMPLEX,
 syn_h, syn_w = 64, 256
 
 # scale factor
-scale_h, scale_w = 4, 4
+scale_h, scale_w = 2, 2
 
 # initial size of the image, scaled up by the factor of scale_h and scale_w
 h, w = syn_h*scale_h, syn_w*scale_w 
@@ -135,7 +135,7 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
 
     # print('img.shape: ', img.shape)
     # print('initial bottomLeftCornerOfText: ', bottomLeftCornerOfText)
-
+    fontColor = 0
     while bottomLeftCornerOfText[1] <= img.shape[0]:
         # get a line of text
         print_text = get_text()
@@ -143,7 +143,7 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
         # put it on a blank image and get its height
         if line_num == 0:
             # get the correct text height 
-            big_img = np.ones((500,300), dtype = np.uint8)*255
+            big_img = np.ones((500,500), dtype = np.uint8)*255
             big_img_text = print_text.upper()
             cv2.putText(img = big_img, text = big_img_text, org = (0,200), fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
             text_height = get_text_height(big_img, fontColor)
@@ -175,7 +175,7 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
     for l in y_line_list:
         cv2.line(img, (0, l), (1000, l), 0, 1)
     '''
-    (thresh, img) = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    # (thresh, img) = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     return img, y_line_list, text_height
 
 def get_noisy_img(img, y_line_list, text_height):
@@ -294,37 +294,44 @@ def write_images(img, noisy_img, debug_img):
     # noisy_img = 255 - cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     # debug_img = 255 - cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)    
     
+    print(img.shape)
     img       = 255 - cv2.resize(img,       (0,0), fx = 1/scale_w, fy = 1/scale_h)
-    noisy_img = 255 - cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
-    debug_img = 255 - cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
+    noisy_img = cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
+    debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
+    thresh = 127
+    img = cv2.threshold(img, thresh, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+
     if img_count <= train_num:            
-        cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}.jpg'.format(str(img_count).zfill(6))), img) 
-        cv2.imwrite(os.path.join(data_dir, train_dir, noisy_dir, '{}.jpg'.format(str(img_count).zfill(6))), noisy_img) 
-        cv2.imwrite(os.path.join(data_dir, train_dir, debug_dir, '{}.jpg'.format(str(img_count).zfill(6))), debug_img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}.png'.format(str(img_count).zfill(6))), img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, noisy_dir, '{}.png'.format(str(img_count).zfill(6))), noisy_img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, debug_dir, '{}.png'.format(str(img_count).zfill(6))), debug_img) 
     else:
-        cv2.imwrite(os.path.join(data_dir, val_dir, imgs_dir, '{}.jpg'.format(str(img_count).zfill(6))), img) 
-        cv2.imwrite(os.path.join(data_dir, val_dir, noisy_dir, '{}.jpg'.format(str(img_count).zfill(6))), noisy_img) 
-        cv2.imwrite(os.path.join(data_dir, val_dir, debug_dir, '{}.jpg'.format(str(img_count).zfill(6))), debug_img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, imgs_dir, '{}.png'.format(str(img_count).zfill(6))), img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, noisy_dir, '{}.png'.format(str(img_count).zfill(6))), noisy_img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, debug_dir, '{}.png'.format(str(img_count).zfill(6))), debug_img) 
 
     img_count += 1
 
 print('\nsynthesizing image data...')
 for i in tqdm(range(num_imgs)):
     # make a blank image
-    img = np.ones((h, w), dtype = np.uint8)*255
+    img = np.ones((h, w), dtype = np.uint8) * 255
 
     # set random parameters
     font = font_list[np.random.randint(len(font_list))]
     bottomLeftCornerOfText = (np.random.randint(word_start_x, int(img.shape[1]/3)), np.random.randint(0, int(img.shape[0]*0.8))) # (x, y)
-    fontColor              = np.random.randint(0,30)
-    fontScale              = np.random.randint(1800, 2400)/1000
+    # fontColor              = np.random.randint(0, 30)
+    fontColor              = 0 # np.random.randint(2)
+    fontScale              = np.random.randint(1800, 2400)/ 1000
     lineType               = np.random.randint(1,3)
     thickness              = np.random.randint(1,7)
     
     # put text
     img, y_line_list, text_height = print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineType, thickness)
-
+    original = img.copy()
+    noisy_img= img
+    
     # add noise
     noisy_img = get_noisy_img(img, y_line_list, text_height)
 
@@ -335,13 +342,13 @@ for i in tqdm(range(num_imgs)):
     img, noisy_img =  erode_dilate(img, noisy_img)
 
     # make debug image
-    debug_img = get_debug_image(img, noisy_img)
+    debug_img = get_debug_image(original, noisy_img)
 
     # write images
-    write_images(img, noisy_img, debug_img)
+    write_images(original, noisy_img, debug_img)
 
     '''
-    cv2.imshow('textonimage', img)
+    cv2.imshow('textonimage', original)
     cv2.imshow('noisy_img', noisy_img)
     cv2.waitKey()
     '''

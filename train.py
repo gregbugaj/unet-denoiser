@@ -131,7 +131,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, log_dir='.
             for l in ls:
                 l.backward()
 
-            print(ls)
+            print('batch loss : %s' % (ls))
             trainer.step(batch_size)
             train_l_sum += sum([l.sum().asscalar() for l in ls])
             n += sum([l.size for l in ls])
@@ -334,7 +334,7 @@ if __name__ == '__main__':
     batch_size = args.batch_size
     num_workers = multiprocessing.cpu_count() // 2
     # python ./segmenter.py --checkpoint=load --checkpoint-file ./unet_best.params
-    net = UNet(channels=16, num_class=args.num_classes)
+    net = UNet(channels=64, num_class=args.num_classes)
     # Load checkpoint from file
     if args.checkpoint == 'new':
         print("Starting new training")
@@ -348,7 +348,7 @@ if __name__ == '__main__':
     # net.hybridize() # Causes errror with the SHAPE
     # net.initialize(ctx=ctx)
     print(net)
-    net.summary(nd.ones((1, 3, 64, 256)))  # NCHW (N:batch_size, C:channel, H:height, W:width)
+    # net.summary(nd.ones((1, 3, 64, 256)))  # NCHW (N:batch_size, C:channel, H:height, W:width)
 
     # if True:
     #     sys.exit(1)

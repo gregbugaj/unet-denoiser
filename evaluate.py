@@ -25,9 +25,9 @@ def normalize_image(img):
     # rgb_mean = nd.array([0.93610591, 0.93610591, 0.93610591])
     # rgb_std = nd.array([0.1319155, 0.1319155, 0.1319155])
 
-    rgb_mean = nd.array([0.08080905,0.08080905, 0.08080905])
-    rgb_std = nd.array([0.22641347, 0.22641347, 0.22641347])
-    
+    rgb_mean = nd.array([0.91325768,0.91325768, 0.91325768])
+    rgb_std = nd.array([0.23572611, 0.23572611, 0.23572611])
+
     # rgb_mean = nd.array([0.0, 0.0, 0.0])
     # rgb_std = nd.array([1.0, 1.0, 1.0])
     
@@ -39,8 +39,8 @@ def post_process_mask(pred, img_cols, img_rows, n_classes, p=0.5):
     pred is of type mxnet.ndarray.ndarray.NDArray
     so we are converting it into numpy
     """
-    # return (np.where(pred.asnumpy().reshape(img_cols, img_rows) > p, 1, 0)).astype('uint8')
-    return pred.asnumpy().reshape(img_cols, img_rows).astype('uint8')
+    return (np.where(pred.asnumpy().reshape(img_rows, img_cols) > p, 1, 0)).astype('uint8')
+    # return pred.asnumpy().reshape(img_cols, img_rows).astype('uint8')
 
 def showAndDestroy(label, image):
     cv2.imshow(label, image)
@@ -97,9 +97,9 @@ def recognize(network_parameters, image_path, ctx, debug):
 
     # At one point this can be generalized but right now I don't see this changing 
     n_classes = 2
-    n_channels = 16
-    img_width = 64
-    img_height = 256
+    n_channels = 64
+    img_height = 64 
+    img_width = 256
 
     # Setup network
     net = UNet(channels = n_channels, num_class = n_classes)
@@ -125,14 +125,21 @@ def recognize(network_parameters, image_path, ctx, debug):
 
     # Transform into required BxCxHxW shape
     data = np.transpose(normal, (2, 0, 1))
+
+    print(data.shape)
     # Exand shape into (B x H x W x c)
     data = data.astype('float32')
     data = mx.ndarray.expand_dims(data, axis=0)
+    print(data.shape)
+
     # prediction 
     out = net(data)
     pred = mx.nd.argmax(out, axis=1)
+    print(pred.shape)
     nd.waitall() # Wait for all operations to finish as they are running asynchronously
     mask = post_process_mask(pred, img_width, img_height, n_classes, p=0.5)
+
+    print(mask.shape)
 
     # rescaled_height = int(img_height / ratio)
     # ratio, rescaled_mask = image_resize(mask, height=rescaled_height)  
@@ -166,7 +173,7 @@ def imwrite(path, img):
 if __name__ == '__main__':
     args = parse_args()
     args.network_param = './unet_best.params'
-    args.img_path = './data/test/image/000089.jpg'
+    args.img_path = './data/test/image/000044.png'
     args.debug = True
 
     ctx = [mx.cpu()]

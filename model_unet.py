@@ -30,7 +30,7 @@ class BaseConvBlock(nn.HybridBlock):
             raise ValueError("Unknow regularization type : %s" %(regularization))
 
         # Residual/Skip connection (ResBlock)
-        # self.residual = nn.Conv2D(channels, kernel_size=1, padding=0) # Identity
+        self.residual = nn.Conv2D(channels, kernel_size=1, padding=0) # Identity
 
         # no-padding in the paper
         # here, I use padding to get the output of the same shape as input
@@ -45,19 +45,19 @@ class BaseConvBlock(nn.HybridBlock):
         # and the output will be the normalized activations ready for the next layer.
         # https://www.reddit.com/r/MachineLearning/comments/67gonq/d_batch_normalization_before_or_after_relu/
 
-        # res = self.residual(x)
+        res = self.residual(x)
         x = self.conv1(x)
         x = F.LeakyReLU(x) 
+        # x = nd.relu(x)
         # x = self.norm1(x)
         x = self.conv2(x)
         # x = self.norm2(x)
-
         # Concatenate ResBlock
-        # connection = nd.add(res, x)
+        connection = nd.add(res, x)
         # x = nd.concat(x1, x2, dim=1)
         # x = self.dropout(connection)
-        # x = F.LeakyReLU(connection)
-        x = F.LeakyReLU(x)
+        x = F.LeakyReLU(connection)
+        # x = nd.relu(connection)
         
         return x
 
@@ -90,6 +90,7 @@ class DownSampleBlock(nn.HybridBlock):
         self.channels = channels
         self.conv = BaseConvBlock(channels, regularization)
         self.maxPool = nn.MaxPool2D(pool_size=2, strides=2)    
+        
 
     def hybrid_forward(self, F, x, *args, **kwargs):
         x = self.maxPool(x)
@@ -107,7 +108,7 @@ class UpSampleBlock(nn.HybridSequential):
         elif upmode == 'upsample':
             self.up = UpsampleConvLayer(channels, kernel_size=3, stride=1, factor=2)
         else: 
-            raise ValueError("Unknow upmode type : %s" %(upmode))
+            raise ValueError("Unknow regularization type : %s" %(regularization))
 
         self.conv = BaseConvBlock(channels, regularization)
 
