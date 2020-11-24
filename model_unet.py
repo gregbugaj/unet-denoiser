@@ -80,7 +80,11 @@ class UpsampleConvLayer(nn.HybridBlock):
         # sample_type= nearest |  bilinear
         # for bilinear
         # y1 = mx.nd.contrib.BilinearResize2D(x1, out_height=5, out_width=5)
-        x = F.UpSampling(x, scale=self.factor, sample_type='nearest')
+        h = x.shape[2] * 2
+        w = x.shape[3] * 2
+        x = nd.contrib.BilinearResize2D(x, height = h, width = w)
+
+        # x = F.UpSampling(x, scale=self.factor, sample_type='nearest')
         return self.conv2d(x)
 
 class DownSampleBlock(nn.HybridBlock):

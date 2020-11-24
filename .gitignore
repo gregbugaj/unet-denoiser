@@ -1,6 +1,7 @@
 data/
 logs/
 checkpoints/
+*.params
 unet_best.params
 # Byte-compiled / optimized / DLL files
 __pycache__/

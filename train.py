@@ -309,6 +309,7 @@ def parse_args():
     return parser.parse_args()
 
 if __name__ == '__main__':
+
     # seed = 42
     # random.seed = seed
     # np.random.seed = seed
