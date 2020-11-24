@@ -11,9 +11,9 @@ class SegDataset(gdata.Dataset):
        # Bitonal 
     #    self.rgb_mean = nd.array([0.92531412, 0.92531412, 0.92531412])
     #    self.rgb_std = nd.array([0.18134897, 0.18134897, 0.18134897])
-
-       self.rgb_mean = nd.array([0.91325768 ,0.91325768 , 0.91325768 ])
-       self.rgb_std = nd.array([0.23572611, 0.23572611, 0.23572611])
+       #91325768  23572611
+       self.rgb_mean = nd.array([0.85762536 ,0.85762536 , 0.85762536 ])
+       self.rgb_std = nd.array([0.29799674, 0.29799674, 0.29799674])
 
     #    self.rgb_mean = nd.array([0.448, 0.456, 0.406])
     #    self.rgb_std = nd.array([0.229, 0.224, 0.225])

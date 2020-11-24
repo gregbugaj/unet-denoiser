@@ -4,6 +4,7 @@ from tqdm import tqdm
 import cv2
 import matplotlib.pyplot as plt
 import shutil
+import random
 
 import config as cfg
 
@@ -60,7 +61,6 @@ def get_word_list():
 
     return words_list
 
-
 words_list = get_word_list()
 print('\nnumber of words in the txt file: ', len(words_list))
 
@@ -70,7 +70,7 @@ font_list = [cv2.FONT_HERSHEY_COMPLEX,
              cv2.FONT_HERSHEY_DUPLEX,
              cv2.FONT_HERSHEY_PLAIN,
              cv2.FONT_HERSHEY_SIMPLEX,
-             cv2.FONT_HERSHEY_TRIPLEX,
+            #  cv2.FONT_HERSHEY_TRIPLEX,
              cv2.FONT_ITALIC] # cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, cv2.FONT_HERSHEY_SCRIPT_COMPLEX, cursive
 
 # size of the synthetic images to be generated
@@ -294,7 +294,6 @@ def write_images(img, noisy_img, debug_img):
     # noisy_img = 255 - cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     # debug_img = 255 - cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)    
     
-    print(img.shape)
     img       = 255 - cv2.resize(img,       (0,0), fx = 1/scale_w, fy = 1/scale_h)
     noisy_img = cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
@@ -325,7 +324,7 @@ for i in tqdm(range(num_imgs)):
     fontColor              = 0 # np.random.randint(2)
     fontScale              = np.random.randint(1800, 2400)/ 1000
     lineType               = np.random.randint(1,3)
-    thickness              = np.random.randint(1,7)
+    thickness              = np.random.randint(1, 7)
     
     # put text
     img, y_line_list, text_height = print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineType, thickness)
@@ -342,10 +341,10 @@ for i in tqdm(range(num_imgs)):
     img, noisy_img =  erode_dilate(img, noisy_img)
 
     # make debug image
-    debug_img = get_debug_image(original, noisy_img)
+    debug_img = get_debug_image(img, noisy_img)
 
     # write images
-    write_images(original, noisy_img, debug_img)
+    write_images(img, noisy_img, debug_img)
 
     '''
     cv2.imshow('textonimage', original)

@@ -25,8 +25,8 @@ def normalize_image(img):
     # rgb_mean = nd.array([0.93610591, 0.93610591, 0.93610591])
     # rgb_std = nd.array([0.1319155, 0.1319155, 0.1319155])
 
-    rgb_mean = nd.array([0.91325768,0.91325768, 0.91325768])
-    rgb_std = nd.array([0.23572611, 0.23572611, 0.23572611])
+    rgb_mean = nd.array([0.85762536,0.85762536, 0.85762536])
+    rgb_std = nd.array([0.29799674, 0.29799674, 0.29799674])
 
     # rgb_mean = nd.array([0.0, 0.0, 0.0])
     # rgb_std = nd.array([1.0, 1.0, 1.0])
@@ -39,8 +39,9 @@ def post_process_mask(pred, img_cols, img_rows, n_classes, p=0.5):
     pred is of type mxnet.ndarray.ndarray.NDArray
     so we are converting it into numpy
     """
-    return (np.where(pred.asnumpy().reshape(img_rows, img_cols) > p, 1, 0)).astype('uint8')
-    # return pred.asnumpy().reshape(img_cols, img_rows).astype('uint8')
+    # return (np.where(pred.asnumpy().reshape(img_rows, img_cols) > p, 1, 0)).astype('uint8')
+    # print(pred.asnumpy())
+    return pred.asnumpy().reshape(img_rows, img_cols).astype('uint8')
 
 def showAndDestroy(label, image):
     cv2.imshow(label, image)

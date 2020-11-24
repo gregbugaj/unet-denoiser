@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
         debug_img[0:h, :] = img
         debug_img[h:2*h, :] = mask
-        cv2.line(debug_img, (0, h), (debug_img.shape[1], h), 150, 1)
+        cv2.line(debug_img, (0, h), (debug_img.shape[1], h), (255, 0, 0), 1)
         return debug_img
 
     for filename in filenames:
@@ -60,6 +60,7 @@ if __name__ == '__main__':
             img_path = os.path.join(dir_src, filename)
             print (img_path)
             src, mask = recognize(network_param, img_path, ctx, False)
+            mask = 255 - mask
             debug = get_debug_image(64 , 256, src, mask)
             imwrite(os.path.join(dir_out, "%s_%s" % (filename, '_.tif')), debug)
             # imwrite(os.path.join(dir_out, "%s_%s" % (filename, 'src.tif')), src)
