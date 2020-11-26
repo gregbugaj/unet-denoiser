@@ -74,7 +74,7 @@ font_list = [cv2.FONT_HERSHEY_COMPLEX,
              cv2.FONT_ITALIC] # cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, cv2.FONT_HERSHEY_SCRIPT_COMPLEX, cursive
 
 # size of the synthetic images to be generated
-syn_h, syn_w = 64, 256
+syn_h, syn_w = 128, 256
 
 # scale factor
 scale_h, scale_w = 2, 2
@@ -298,8 +298,7 @@ def write_images(img, noisy_img, debug_img):
     noisy_img = cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
-    thresh = 127
-    img = cv2.threshold(img, thresh, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
     if img_count <= train_num:            
         cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}.png'.format(str(img_count).zfill(6))), img) 
