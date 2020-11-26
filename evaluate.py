@@ -83,6 +83,7 @@ def recognize(network_parameters, image_path, ctx, debug):
 
     net = load_network(ctx)
     n_classes = 2
+    n_channels = 64
     img_height = 128 
     img_width = 256
 
@@ -159,7 +160,7 @@ def recognize_patch(net, ctx, image):
     img_height = 128 
     img_width = 256
     n_classes = 2
-    
+
     # prepare images
     src = image
     resized_img = src
