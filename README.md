@@ -2,10 +2,15 @@
 
 
 # Feature loss function
-Need to implement custom loss function t
+Need to implement custom loss function
 
 * pixel loss
 * gram matrix loss
+
+https://github.com/mrgloom/awesome-semantic-segmentation
+https://medium.com/@junma11/loss-functions-for-medical-image-segmentation-a-taxonomy-cefa5292eec0
+https://github.com/karolzak/keras-unet/blob/2b1c6d5ea1846b97ff7fa0f38ec371f20db73020/keras_unet/losses.py
+
 
 https://thomasdelteil.github.io/NeuralStyleTransfer_MXNet/
 https://mxnet.apache.org/versions/1.7/api/python/docs/api/gluon/loss/index.html#mxnet.gluon.loss.SoftmaxCrossEntropyLoss

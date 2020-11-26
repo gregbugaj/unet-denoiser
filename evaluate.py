@@ -48,32 +48,17 @@ def showAndDestroy(label, image):
     cv2.waitKey(0)           
     cv2.destroyAllWindows() 
 
-def iou_metric(a, b, epsilon=1e-5, conversion_mode='cast', conversion_params={'p1' : .5, 'p2' : .5}):
-    """Intersection Over Union Metric
+def load_network(network_parameters, ctx):
+    # At one point this can be generalized but right now I don't see this changing 
+    n_classes = 2
+    n_channels = 32
 
-    Args:
-        a:                  (numpy array) component a
-        b:                  (numpy array) component b
-        epsilon:            (float) Small value to prevent division by zereo
-        conversion_mode:    (cast|predicate) Array conversion mode to bool
-        conversion_params:  (dictionary) Conversion parameter dictionary 
+    # Setup network
+    net = UNet(channels = n_channels, num_class = n_classes)
+    net.load_parameters(network_parameters, ctx=ctx)
+    
+    return net
 
-    Returns:
-        (float) The Intersect of Union score.
-    """
-    if conversion_mode == 'cast':
-        d1 = a.astype('bool')
-        d2 = b.astype('bool')
-    elif conversion_mode == 'predicate': 
-        d1 = np.where(a > float(conversion_params['p1']), True, False)
-        d2 = np.where(b > float(conversion_params['p2']), True, False)        
-    else:
-        raise ValueError("Unknown conversion type : %s" % (conversion_mode))        
-
-    overlap = d1 * d2 # logical AND
-    union = d1 + d2 # logical OR
-    iou = overlap.sum() / (union.sum() + epsilon)
-    return iou
 
 def recognize(network_parameters, image_path, ctx, debug):
     """Recognize form
@@ -96,20 +81,16 @@ def recognize(network_parameters, image_path, ctx, debug):
         ctx = [ctx]
     start = time.time()
 
-    # At one point this can be generalized but right now I don't see this changing 
+    net = load_network(ctx)
     n_classes = 2
-    n_channels = 64
-    img_height = 64 
+    img_height = 128 
     img_width = 256
 
-    # Setup network
-    net = UNet(channels = n_channels, num_class = n_classes)
-    net.load_parameters(network_parameters, ctx=ctx)
-    
-    # Srepare images
+    # prepare images
     src = cv2.imread(image_path) 
     # ratio, resized_img = resize_and_frame(src, height=512)
     resized_img = src
+    
     img = mx.nd.array(resized_img)    
     normal = normalize_image(img)
     name = image_path.split('/')[-1]
@@ -156,6 +137,60 @@ def recognize(network_parameters, image_path, ctx, debug):
     mask = mask * 255 # currently mask is 0 / 1 
     return src, mask
 
+def recognize_patch(net, ctx, image):
+    """Recognize form
+
+    *net* trained network parameters,
+    *ctx* is the mxnet context we evaluating on
+    *image* is the image we want to evaluate.
+
+    Algorithm :
+        Setup recogintion network(Modified UNET)
+        Prepare images
+        Run prediction on the network
+        Reshape predition onto target image
+
+    Return an tupple of src, mask
+    """
+
+    if isinstance(ctx, mx.Context):
+        ctx = [ctx]
+    start = time.time()
+    img_height = 128 
+    img_width = 256
+    n_classes = 2
+    
+    # prepare images
+    src = image
+    resized_img = src
+    img = mx.nd.array(resized_img)    
+    normal = normalize_image(img)
+    # Transform into required BxCxHxW shape
+    data = np.transpose(normal, (2, 0, 1))
+
+    print(data.shape)
+    # Exand shape into (B x H x W x c)
+    data = data.astype('float32')
+    data = mx.ndarray.expand_dims(data, axis=0)
+    print(data.shape)
+
+    # prediction 
+    out = net(data)
+    pred = mx.nd.argmax(out, axis=1)
+    print(pred.shape)
+    nd.waitall() # Wait for all operations to finish as they are running asynchronously
+    mask = post_process_mask(pred, img_width, img_height, n_classes, p=0.5)
+    print(mask.shape)
+
+    # rescaled_height = int(img_height / ratio)
+    # ratio, rescaled_mask = image_resize(mask, height=rescaled_height)  
+    # mask = rescaled_mask
+    dt = time.time() - start
+    print('Eval time %.3f sec' % (dt))
+    mask = mask * 255 # currently mask is 0 / 1 
+    return src, mask
+
+
 def parse_args():
     """Parse input arguments"""
     parser = argparse.ArgumentParser(description='UNET evaluator')
@@ -175,6 +210,7 @@ if __name__ == '__main__':
     args = parse_args()
     args.network_param = './unet_best.params'
     args.img_path = './data/test/image/000044.png'
+    args.img_path = '/home/gbugaj/devio/unet-denoiser/assets/snippets/snippet.png'
     args.debug = True
 
     ctx = [mx.cpu()]

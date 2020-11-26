@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from CustomLoss import ContrastiveLoss
 import argparse
 import os
 from mxnet.gluon import loss as gloss, data as gdata, utils as gutils
@@ -335,7 +336,7 @@ if __name__ == '__main__':
     batch_size = args.batch_size
     num_workers = multiprocessing.cpu_count() // 2
     # python ./segmenter.py --checkpoint=load --checkpoint-file ./unet_best.params
-    net = UNet(channels=64, num_class=args.num_classes)
+    net = UNet(channels=32, num_class=args.num_classes)
     # Load checkpoint from file
     if args.checkpoint == 'new':
         print("Starting new training")
@@ -364,6 +365,8 @@ if __name__ == '__main__':
     test_iter =  mx.gluon.data.DataLoader(test_imgs, batch_size=batch_size, shuffle=False, num_workers=num_workers, last_batch='keep')
 
     loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
+    # loss = ContrastiveLoss(axis=1)
+    
     # fixme : SGD causes a NAN during loss calculation
     if args.optimizer == 'sgd':
         optimizer_params = {

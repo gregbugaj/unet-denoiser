@@ -12,7 +12,7 @@ from mxnet.gluon import loss as gloss, data as gdata, utils as gutils
 import os
 import argparse
 
-from evaluate import recognize, imwrite, iou_metric
+from evaluate import recognize, imwrite
 
 def parse_args():
     """Parse input arguments"""
@@ -61,7 +61,7 @@ if __name__ == '__main__':
             print (img_path)
             src, mask = recognize(network_param, img_path, ctx, False)
             mask = 255 - mask
-            debug = get_debug_image(64 , 256, src, mask)
+            debug = get_debug_image(128 , 256, src, mask)
             imwrite(os.path.join(dir_out, "%s_%s" % (filename, '_.tif')), debug)
             # imwrite(os.path.join(dir_out, "%s_%s" % (filename, 'src.tif')), src)
             # imwrite(os.path.join(dir_out,'masks', "%s_%s" % (filename, 'mask.tif')), mask)

@@ -19,6 +19,7 @@ val_dir = cfg.val_dir
 imgs_dir = cfg.imgs_dir
 noisy_dir = cfg.noisy_dir
 debug_dir = cfg.debug_dir
+patch_dir = cfg.patch_dir
 
 train_data_dir = os.path.join(data_dir, train_dir)
 val_data_dir = os.path.join(data_dir, val_dir)
@@ -61,7 +62,20 @@ def get_word_list():
 
     return words_list
 
+def get_patches():
+    patches = []
+    for filename in os.listdir(patch_dir):
+        try:
+            img_path = os.path.join(patch_dir, filename)
+            img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+            patches.append(img)
+        except Exception as e:
+            print(e)
+    return patches
+
 words_list = get_word_list()
+patches_list = get_patches()
+
 print('\nnumber of words in the txt file: ', len(words_list))
 
 # list of all the font styles
@@ -74,10 +88,9 @@ font_list = [cv2.FONT_HERSHEY_COMPLEX,
              cv2.FONT_ITALIC] # cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, cv2.FONT_HERSHEY_SCRIPT_COMPLEX, cursive
 
 # size of the synthetic images to be generated
-syn_h, syn_w = 64, 256
-
+syn_h, syn_w = 128, 256
 # scale factor
-scale_h, scale_w = 2, 2
+scale_h, scale_w = 1, 1
 
 # initial size of the image, scaled up by the factor of scale_h and scale_w
 h, w = syn_h*scale_h, syn_w*scale_w 
@@ -179,10 +192,12 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
     return img, y_line_list, text_height
 
 def get_noisy_img(img, y_line_list, text_height):
-
     # adding noise (horizontal and vertical lines) on the image containing text
     noisy_img = img.copy()
-    
+
+    patch = patches_list[np.random.randint(0, len(patches_list))]
+    patch = cv2.resize(patch, (w,h))
+    noisy_img = cv2.bitwise_and(patch, noisy_img, mask = None)
     # adding horizontal line (noise)
     for y_line in y_line_list: 
 
@@ -328,9 +343,7 @@ for i in tqdm(range(num_imgs)):
     
     # put text
     img, y_line_list, text_height = print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineType, thickness)
-    original = img.copy()
-    noisy_img= img
-    
+
     # add noise
     noisy_img = get_noisy_img(img, y_line_list, text_height)
 
