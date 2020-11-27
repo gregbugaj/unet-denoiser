@@ -12,7 +12,7 @@ patch_dir = './assets/patches'
 txt_file_dir = 'text.txt'
 
 # maximun number of synthetic words to generate
-num_synthetic_imgs = 500
+num_synthetic_imgs = 10000
 train_percentage = 0.8
 
 test_dir = os.path.join(data_dir, val_dir, noisy_dir)

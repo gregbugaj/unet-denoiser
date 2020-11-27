@@ -300,6 +300,10 @@ def reconstruct_from_patches_2(img_arr, org_img_size, size_h=None, stride_h=None
     Returns:
         numpy.ndarray: [description]
     """
+    # (60, 128, 256, 3)
+    # (60, 128, 256)
+
+    print(img_arr.shape)
     # check parameters
     if type(org_img_size) is not tuple:
         raise ValueError("org_image_size must be a tuple")
@@ -314,10 +318,17 @@ def reconstruct_from_patches_2(img_arr, org_img_size, size_h=None, stride_h=None
         stride_h = size_h
 
     if size_w is None:
-        size_w = img_arr.shape[1]
+        size_w = img_arr.shape[2]
 
     if stride_w is None:
         stride_w = size_w
+
+
+    print(org_img_size)
+    print('size_h : %d' % (size_h))
+    print('stride_h : %d' % (stride_h))
+    print('size_w : %d' % (size_w))
+    print('stride_w : %d' % (stride_w))
 
     nm_layers = img_arr.shape[3]
 
@@ -325,6 +336,11 @@ def reconstruct_from_patches_2(img_arr, org_img_size, size_h=None, stride_h=None
     j_max = (org_img_size[1] // stride_w) + 1 - (size_w // stride_w)
 
     total_nm_images = img_arr.shape[0] // (i_max ** 2)
+    total_nm_images = 1
+
+    print('print i_max : %d' % (i_max))
+    print('print j_max : %d' % (j_max))
+    print('print total_nm_images : %d' % (total_nm_images))
     nm_images = img_arr.shape[0]
 
     # averaging_value = size // stride

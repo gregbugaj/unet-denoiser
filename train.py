@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 
 from collections import namedtuple
 from mxboard import *
+from tqdm import tqdm
 
 # module
 from loader import SegDataset
@@ -99,7 +100,6 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, log_dir='.
     log.info("lr_steps : {}".format(lr_steps))
     # define a summary writer that logs data and flushes to the file every 5 seconds
     sw = SummaryWriter(logdir='./logs', flush_secs=5)
-
     # collect parameter names for logging the gradients of parameters in each epoch
     params = net.collect_params()
     param_names = params.keys()
@@ -121,9 +121,9 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, log_dir='.
         train_l_sum, train_acc_sum, n, m, start = 0.0, 0.0, 0, 0, time.time()
         btic = time.time()
 
-        for i, batch in enumerate(train_iter):
+        for i, batch in enumerate(tqdm(train_iter)):
             # if i % 0 == 0:
-            print("Batch Index : %d" % (i))
+            # print("Batch Index : %d" % (i))
             xs, ys, batch_size = _get_batch(batch, ctx)
             ls = []
             with autograd.record():
@@ -132,7 +132,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, log_dir='.
             for l in ls:
                 l.backward()
 
-            print('batch loss : %s' % (ls))
+            # print('batch loss : %s' % (ls))
             trainer.step(batch_size)
             train_l_sum += sum([l.sum().asscalar() for l in ls])
             n += sum([l.size for l in ls])
@@ -329,14 +329,12 @@ if __name__ == '__main__':
         os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
         # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
-    # epoch 200, loss 0.26075, train acc 0.88482, test acc 0.87221, time 1.15931 sec
-
     # Hyperparameters
     print(args)
     batch_size = args.batch_size
     num_workers = multiprocessing.cpu_count() // 2
     # python ./segmenter.py --checkpoint=load --checkpoint-file ./unet_best.params
-    net = UNet(channels=32, num_class=args.num_classes)
+    net = UNet(channels=64, num_class=args.num_classes)
     # Load checkpoint from file
     if args.checkpoint == 'new':
         print("Starting new training")
