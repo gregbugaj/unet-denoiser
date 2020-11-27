@@ -93,7 +93,7 @@ def clean(img_path, dir_out, network_parameters):
 if __name__ == '__main__':
     args = parse_args()
     args.network_param = './unet_best.params'
-    args.img_src = './assets/template/template-03.png'
+    args.img_src = './assets/template/template-04.png'
     args.dir_out = './data/clean'
     args.debug = False
     
