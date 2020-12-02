@@ -88,9 +88,10 @@ font_list = [cv2.FONT_HERSHEY_COMPLEX,
              cv2.FONT_ITALIC] # cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, cv2.FONT_HERSHEY_SCRIPT_COMPLEX, cursive
 
 # size of the synthetic images to be generated
-syn_h, syn_w = 128, 256
+# syn_h, syn_w = 128, 256
+syn_h, syn_w = 64, 256
 # scale factor
-scale_h, scale_w = 1, 1
+scale_h, scale_w = 2, 2
 
 # initial size of the image, scaled up by the factor of scale_h and scale_w
 h, w = syn_h*scale_h, syn_w*scale_w 
@@ -120,9 +121,17 @@ def get_text():
         words_list = get_word_list() 
         word_count = 0
 
+    # Add number of 1 
+    if np.random.choice([True, False], p = [0.65, 0.35]):
+        letters = '1117'
+        k = random.randint(1, 2)
+        return (''.join(random.choice(letters) for i in range(k)))
+
     print_text = ''
     for _ in range(num_words):
-        print_text += str.split(words_list[word_count])[0] + ' '
+        index = np.random.randint(0, len(words_list))
+        print_text += str.split(words_list[index])[0] + ' '
+        #print_text += str.split(words_list[word_count])[0] + ' '
         word_count += 1
     print_text = print_text.strip() # to get rif of the last space
     return print_text
@@ -146,6 +155,11 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
     line_num = 0
     y_line_list = []
 
+    def getUpperOrLowerText(txt):
+        if np.random.choice([0, 1], p = [0.5, 0.5]) :
+            return txt.upper()
+        return txt.lower()    
+
     # print('img.shape: ', img.shape)
     # print('initial bottomLeftCornerOfText: ', bottomLeftCornerOfText)
     fontColor = 0
@@ -157,7 +171,7 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
         if line_num == 0:
             # get the correct text height 
             big_img = np.ones((500,500), dtype = np.uint8)*255
-            big_img_text = print_text.upper()
+            big_img_text = getUpperOrLowerText(print_text)
             cv2.putText(img = big_img, text = big_img_text, org = (0,200), fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
             text_height = get_text_height(big_img, fontColor)
             # print('text_height: ', text_height)
@@ -165,14 +179,14 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
             if text_height > bottomLeftCornerOfText[1]:
                 bottomLeftCornerOfText = (bottomLeftCornerOfText[0], np.random.randint(word_start_y, int(img.shape[0]*0.5)) + text_height)
 
-            cv2.putText(img = img, text = print_text.upper(), org = bottomLeftCornerOfText, fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
+            cv2.putText(img = img, text = getUpperOrLowerText(print_text), org = bottomLeftCornerOfText, fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
             y_line_list.append(bottomLeftCornerOfText[1])
         else:
             # sampling the chances of adding one more line of text
             one_more_line = np.random.choice([0, 1], p = [0.4, 0.6])
             if not one_more_line:
                 break
-            cv2.putText(img = img, text = print_text.upper(), org = bottomLeftCornerOfText, fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
+            cv2.putText(img = img, text = getUpperOrLowerText(print_text), org = bottomLeftCornerOfText, fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
             y_line_list.append(bottomLeftCornerOfText[1])
         # calculate the (text_height+line break space) left on the bottom
         bottom_space_left = int(text_height*(1 + np.random.randint(20, 40)/100))
@@ -181,8 +195,6 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
 
         # update the bottomLeftCornerOfText
         bottomLeftCornerOfText = (bottomLeftCornerOfText[0], bottomLeftCornerOfText[1] + bottom_space_left)
-
-        # print('bottomLeftCornerOfText: ', bottomLeftCornerOfText)
         line_num += 1
     '''    
     for l in y_line_list:
@@ -195,9 +207,16 @@ def get_noisy_img(img, y_line_list, text_height):
     # adding noise (horizontal and vertical lines) on the image containing text
     noisy_img = img.copy()
 
+    # Do we want to make a dirty image
+    if np.random.choice([True, False], p = [0.35, 0.65]):
+        return noisy_img
+
+    # Add background patch
+    # if np.random.choice([True, False], p = [0.75, 0.25]):
     patch = patches_list[np.random.randint(0, len(patches_list))]
     patch = cv2.resize(patch, (w,h))
     noisy_img = cv2.bitwise_and(patch, noisy_img, mask = None)
+
     # adding horizontal line (noise)
     for y_line in y_line_list: 
 

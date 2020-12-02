@@ -11,8 +11,8 @@ if __name__ == '__main__':
     _file = open('digits.txt', 'w') 
 
     for i in tqdm(range(100000)):
-        k = random.randint(3, 8)
-        n = np.random.choice(['', '$', '$ ','-'], p =[0.3, 0.3, 0.3, .1]) 
+        k = random.randint(1, 8)
+        n = np.random.choice(['', '$', '$ ','-'], p =[0.5, 0.2, 0.2, .1]) 
         n += (''.join(random.choice(letters) for i in range(k)))
         if np.random.choice([0,1], p =[0.3, 0.7]) == 1:
             n += '.'

@@ -31,14 +31,12 @@ class BaseConvBlock(nn.HybridBlock):
 
         # Residual/Skip connection (ResBlock)
         self.residual = nn.Conv2D(channels, kernel_size=1, padding=0) # Identity
-
         # no-padding in the paper
         # here, I use padding to get the output of the same shape as input
         self.conv1 = nn.Conv2D(channels, kernel_size=3, padding=1)
         self.norm1 = norm_layer(regularization)
         self.conv2 = nn.Conv2D(channels, kernel_size=3, padding=1)
         self.norm2 = norm_layer(regularization)
-        # self.dropout = nn.Dropout(.30)
 
     def hybrid_forward(self, F, x, *args, **kwargs):
         # BatchNorm input will typically be unnormalized activations from the previous layer,
@@ -55,7 +53,6 @@ class BaseConvBlock(nn.HybridBlock):
         # Concatenate ResBlock
         connection = nd.add(res, x)
         # x = nd.concat(x1, x2, dim=1)
-        # x = self.dropout(connection)
         x = F.LeakyReLU(connection)
         # x = nd.relu(connection)
         
@@ -94,11 +91,12 @@ class DownSampleBlock(nn.HybridBlock):
         self.channels = channels
         self.conv = BaseConvBlock(channels, regularization)
         self.maxPool = nn.MaxPool2D(pool_size=2, strides=2)    
-        
+        self.dropout = nn.Dropout(.50)
 
     def hybrid_forward(self, F, x, *args, **kwargs):
         x = self.maxPool(x)
-        x = self.conv(x)        
+        x = self.conv(x)       
+        x = self.dropout(x)
         # logging.info(x.shape)
         return x
 
@@ -137,9 +135,8 @@ class UpSampleBlock(nn.HybridSequential):
         # logging.info(x.shape)
         return self.conv(x)
 
-
 class UNet(nn.HybridSequential):
-    def __init__(self, channels, num_class, regularization='batch_norm', **kwargs):
+    def __init__(self, channels, num_class, regularization='layer_norm', **kwargs):
         super(UNet, self).__init__(**kwargs)
         self.regularization = regularization
         # Input 

@@ -17,10 +17,10 @@ def create_patches(dir_src, dir_out):
     if not os.path.exists(dir_out):
         os.makedirs(dir_out)
 
-    size_h = 128
-    stride_h = 64
+    size_h = 64
+    stride_h = 16
     size_w = 256
-    stride_w = 64
+    stride_w = 16
 
     for filename in os.listdir(dir_src):
         try:
@@ -37,4 +37,4 @@ def create_patches(dir_src, dir_out):
             print(e)
 
 if __name__ == '__main__':
-    create_patches(dir_src = './assets/backgrounds', dir_out = './data/patches')
+    create_patches(dir_src = './assets/backgrounds', dir_out = './assets/patches')
