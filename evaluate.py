@@ -84,8 +84,12 @@ def recognize(network_parameters, image_path, ctx, debug):
     net = load_network(network_parameters, ctx)
     n_classes = 2
     n_channels = 64
+    
     img_height = 64 
     img_width = 256
+
+    # img_height = 96 
+    # img_width = 576
 
     # prepare images
     src = cv2.imread(image_path) 
@@ -157,8 +161,13 @@ def recognize_patch(net, ctx, image):
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
     start = time.time()
+    
     img_height = 64 
     img_width = 256
+
+    # img_height = 96 
+    # img_width = 576
+    
     n_classes = 2
 
     # prepare images
@@ -206,6 +215,7 @@ if __name__ == '__main__':
     args.network_param = './unet_best.params'
     args.img_path = './data/test/image/000044.png'
     args.img_path = '/home/gbugaj/devio/unet-denoiser/assets/snippets/snippet.png'
+    args.img_path = '/home/greg/dev/unet-denoiser/assets/cleaned-examples/field-set-01/07.png'    
     args.debug = True
 
     ctx = [mx.cpu()]

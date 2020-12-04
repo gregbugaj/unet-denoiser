@@ -80,16 +80,20 @@ print('\nnumber of words in the txt file: ', len(words_list))
 
 # list of all the font styles
 font_list = [cv2.FONT_HERSHEY_COMPLEX, 
-             cv2.FONT_HERSHEY_COMPLEX_SMALL,
-             cv2.FONT_HERSHEY_DUPLEX,
+            #  cv2.FONT_HERSHEY_COMPLEX_SMALL,
+            #  cv2.FONT_HERSHEY_DUPLEX,
              cv2.FONT_HERSHEY_PLAIN,
              cv2.FONT_HERSHEY_SIMPLEX,
             #  cv2.FONT_HERSHEY_TRIPLEX,
-             cv2.FONT_ITALIC] # cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, cv2.FONT_HERSHEY_SCRIPT_COMPLEX, cursive
+             #cv2.FONT_ITALIC
+             ] # cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, cv2.FONT_HERSHEY_SCRIPT_COMPLEX, cursive
 
 # size of the synthetic images to be generated
 # syn_h, syn_w = 128, 256
-syn_h, syn_w = 64, 256
+syn_h, syn_w = 64, 256 # PROD 
+
+# syn_h, syn_w = 96, 576 # PROD-SEGMENTS
+
 # scale factor
 scale_h, scale_w = 2, 2
 
@@ -122,7 +126,7 @@ def get_text():
         word_count = 0
 
     # Add number of 1 
-    if np.random.choice([True, False], p = [0.65, 0.35]):
+    if False and np.random.choice([True, False], p = [0.65, 0.35]):
         letters = '1117'
         k = random.randint(1, 2)
         return (''.join(random.choice(letters) for i in range(k)))
@@ -207,63 +211,64 @@ def get_noisy_img(img, y_line_list, text_height):
     # adding noise (horizontal and vertical lines) on the image containing text
     noisy_img = img.copy()
 
-    # Do we want to make a dirty image
-    if np.random.choice([True, False], p = [0.35, 0.65]):
+    # # Do we want to make a dirty image
+    if np.random.choice([True, False], p = [0.20, 0.80]):
         return noisy_img
 
     # Add background patch
-    # if np.random.choice([True, False], p = [0.75, 0.25]):
-    patch = patches_list[np.random.randint(0, len(patches_list))]
-    patch = cv2.resize(patch, (w,h))
-    noisy_img = cv2.bitwise_and(patch, noisy_img, mask = None)
-
-    # adding horizontal line (noise)
-    for y_line in y_line_list: 
-
-        # samples the possibility of adding a horizontal line
-        add_horizontal_line = np.random.choice([0, 1], p = [0.5, 0.5])
-        if not add_horizontal_line:
-            continue
-
-        # shift y_line randomly in the y-axis within a defined limit
-        limit = int(text_height*0.3)
-        if limit == 0: # this happens when the text used for getting the text height is '-', ',', '=' and other little symbols like these 
-            limit = 10
-        y_line += np.random.randint(-limit, limit)
-
-        h_start_x = 0 #np.random.randint(0,xmin)                           # min x of the horizontal line
-        h_end_x   = np.random.randint(int(noisy_img.shape[1]*0.8), noisy_img.shape[1]) # max x of the horizontal line
-        h_length = h_end_x - h_start_x + 1
-        num_h_lines = np.random.randint(10,30) # partitions to be made in the horizontal line (necessary to make it look like naturally broken lines)
-        h_lines = []
-        h_start_temp = h_start_x
-        next_line = True
-
-        num_line = 0
-        while (next_line) and (num_line < num_h_lines):
-            if h_start_temp < h_end_x:
-                h_end_temp = np.random.randint(h_start_temp + 1, h_end_x + 1)
-                if h_end_temp < h_end_x:
-                    h_lines.append([h_start_temp, h_end_temp]) 
-                    h_start_temp = h_end_temp + 1
-                    num_line += 1
-                else:
-                    h_lines.append([h_start_temp, h_end_x]) 
-                    num_line += 1
-                    next_line = False
-            else:
-                next_line = False
-
-        for h_line in h_lines:
-            col = np.random.choice(['black', 'white'], p = [0.65, 0.35]) # probabilities of line segment being a solid one or a broken one
-            if col == 'black':
-                x_points = list(range(h_line[0], h_line[1] + 1))
-                x_points_black_prob = np.random.choice([0,1], size = len(x_points), p = [0.2, 0.8])
-
-                for idx, x in enumerate(x_points):
-                    if x_points_black_prob[idx]:
-                        noisy_img[ y_line - np.random.randint(4): y_line + np.random.randint(4), x] = np.random.randint(0,30)  
+    if np.random.choice([True, False], p = [0.75, 0.25]):
+        patch = patches_list[np.random.randint(0, len(patches_list))]
+        patch = cv2.resize(patch, (w,h))
+        noisy_img = cv2.bitwise_and(patch, noisy_img, mask = None)
     
+    if False:
+        # adding horizontal line (noise)
+        for y_line in y_line_list: 
+
+            # samples the possibility of adding a horizontal line
+            add_horizontal_line = np.random.choice([0, 1], p = [0.5, 0.5])
+            if not add_horizontal_line:
+                continue
+
+            # shift y_line randomly in the y-axis within a defined limit
+            limit = int(text_height*0.3)
+            if limit == 0: # this happens when the text used for getting the text height is '-', ',', '=' and other little symbols like these 
+                limit = 10
+            y_line += np.random.randint(-limit, limit)
+
+            h_start_x = 0 #np.random.randint(0,xmin)                           # min x of the horizontal line
+            h_end_x   = np.random.randint(int(noisy_img.shape[1]*0.8), noisy_img.shape[1]) # max x of the horizontal line
+            h_length = h_end_x - h_start_x + 1
+            num_h_lines = np.random.randint(10,30) # partitions to be made in the horizontal line (necessary to make it look like naturally broken lines)
+            h_lines = []
+            h_start_temp = h_start_x
+            next_line = True
+
+            num_line = 0
+            while (next_line) and (num_line < num_h_lines):
+                if h_start_temp < h_end_x:
+                    h_end_temp = np.random.randint(h_start_temp + 1, h_end_x + 1)
+                    if h_end_temp < h_end_x:
+                        h_lines.append([h_start_temp, h_end_temp]) 
+                        h_start_temp = h_end_temp + 1
+                        num_line += 1
+                    else:
+                        h_lines.append([h_start_temp, h_end_x]) 
+                        num_line += 1
+                        next_line = False
+                else:
+                    next_line = False
+
+            for h_line in h_lines:
+                col = np.random.choice(['black', 'white'], p = [0.65, 0.35]) # probabilities of line segment being a solid one or a broken one
+                if col == 'black':
+                    x_points = list(range(h_line[0], h_line[1] + 1))
+                    x_points_black_prob = np.random.choice([0,1], size = len(x_points), p = [0.2, 0.8])
+
+                    for idx, x in enumerate(x_points):
+                        if x_points_black_prob[idx]:
+                            noisy_img[ y_line - np.random.randint(4): y_line + np.random.randint(4), x] = np.random.randint(0,30)  
+        
     # adding vertical line (noise)
     vertical_bool = {'left': np.random.choice([0,1], p =[0.3, 0.7]), 'right': np.random.choice([0,1])} # [1 or 0, 1 or 0] whether to make vertical left line on left and right side of the image
     for left_right, bool_ in vertical_bool.items():

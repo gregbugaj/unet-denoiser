@@ -335,12 +335,10 @@ def reconstruct_from_patches_2(img_arr, org_img_size, size_h=None, stride_h=None
     i_max = (org_img_size[0] // stride_h) + 1 - (size_h // stride_h)
     j_max = (org_img_size[1] // stride_w) + 1 - (size_w // stride_w)
 
+    # FIXME : 
     total_nm_images = img_arr.shape[0] // (i_max ** 2)
     total_nm_images = 1
 
-    print('print i_max : %d' % (i_max))
-    print('print j_max : %d' % (j_max))
-    print('print total_nm_images : %d' % (total_nm_images))
     nm_images = img_arr.shape[0]
 
     # averaging_value = size // stride

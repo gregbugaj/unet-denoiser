@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from mxnet.gluon import loss as gloss, data as gdata, utils as gutils
 import os
 import argparse
+import glob
 
 from evaluate import recognize, imwrite
 
@@ -31,9 +32,15 @@ def ensure_exists(dir):
 if __name__ == '__main__':
     args = parse_args()
     args.network_param = './unet_best.params'
+    
     args.dir_src = './data/test/image'
     args.dir_out = './data/debug'
     
+    # args.network_param = './checkpoints/unet-28-0.993299.params'
+    # args.dir_src = '/home/greg/dev/unet-denoiser/assets/cleaned-examples/field-set-01'
+    # args.dir_out = '/home/greg/dev/unet-denoiser/assets/cleaned-examples/field-set-01/debug'
+    
+
     args.debug = False
     ctx = [mx.cpu()]
     
@@ -41,7 +48,7 @@ if __name__ == '__main__':
     dir_out = args.dir_out 
     network_param = args.network_param
 
-    filenames = os.listdir(dir_src)
+    paths = glob.glob('%s/*.png' %(dir_src)) # os.listdir(dir_src)
     if not os.path.exists(dir_out):
         os.makedirs(dir_out)
 
@@ -55,13 +62,15 @@ if __name__ == '__main__':
         cv2.line(debug_img, (0, h), (debug_img.shape[1], h), (255, 0, 0), 1)
         return debug_img
 
-    for filename in filenames:
+    for _path in paths:
         try:
+            filename= _path.split('/')[-1]
             img_path = os.path.join(dir_src, filename)
             print (img_path)
             src, mask = recognize(network_param, img_path, ctx, False)
             mask = 255 - mask
             debug = get_debug_image(64 , 256, src, mask)
+            # debug = get_debug_image(96 , 576, src, mask)
             imwrite(os.path.join(dir_out, "%s_%s" % (filename, '_.tif')), debug)
             # imwrite(os.path.join(dir_out, "%s_%s" % (filename, 'src.tif')), src)
             # imwrite(os.path.join(dir_out,'masks', "%s_%s" % (filename, 'mask.tif')), mask)

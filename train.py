@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-from CustomLoss import ContrastiveLoss
+# 
+from WeightedBCEDICELoss import WeightedBCEDICE
 import argparse
 import os
 from mxnet.gluon import loss as gloss, data as gdata, utils as gutils
@@ -81,7 +81,7 @@ def evaluate_accuracy(data_iter, net, ctx):
         acc_sum.wait_to_read()
     return acc_sum.asscalar() / n
 
-
+# 
 def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, log_dir='./', checkpoints_dir='./checkpoints'):
     """Train model and genereate checkpoints"""
     print('Training network  : %d' % (num_epochs))
@@ -131,8 +131,8 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, log_dir='.
                 ls = [loss(y_hat, y) for y_hat, y in zip(y_hats, ys)]
             for l in ls:
                 l.backward()
-
-            # print('batch loss : %s' % (ls))
+# 
+            print('batch loss : %s' % (ls))
             trainer.step(batch_size)
             train_l_sum += sum([l.sum().asscalar() for l in ls])
             n += sum([l.size for l in ls])
@@ -146,10 +146,10 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, log_dir='.
         speed = batch_size / (time.time() - btic)
         epoch_time = time.time() - start
         test_acc = evaluate_accuracy(test_iter, net, ctx)
-
+# 
         print('epoch %d, loss %.5f, train acc %.5f, test acc %.5f, time %.5f sec'
               % (epoch + 1, train_l_sum / n, train_acc_sum / m, test_acc, epoch_time))
-
+# 
         sw.add_scalar(tag='loss', value=(train_l_sum / n), global_step=epoch)
         # logging training/validation/test accuracy
         sw.add_scalar(tag='accuracy_curves', value=('train_acc', train_acc_sum / m), global_step=epoch)
@@ -361,10 +361,12 @@ if __name__ == '__main__':
 
     train_iter =  mx.gluon.data.DataLoader(train_imgs, batch_size=batch_size, shuffle=True, num_workers=num_workers, last_batch='keep')
     test_iter =  mx.gluon.data.DataLoader(test_imgs, batch_size=batch_size, shuffle=False, num_workers=num_workers, last_batch='keep')
-
-    loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
+# 
+    # loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
+    loss = WeightedBCEDICE(axis=1)
+    # 
     # loss = ContrastiveLoss(axis=1)
-    
+    # 
     # fixme : SGD causes a NAN during loss calculation
     if args.optimizer == 'sgd':
         optimizer_params = {
@@ -375,6 +377,3 @@ if __name__ == '__main__':
     trainer = gluon.Trainer(net.collect_params(), args.optimizer, optimizer_params)
     train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs=args.num_epochs, log_dir=args.log_dir)
     print('Done')
-
-    # Runs
-    # epoch 200, loss 0.13366, train acc 0.94256, test acc 0.91288, time 1.14260 sec
