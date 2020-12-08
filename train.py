@@ -361,12 +361,11 @@ if __name__ == '__main__':
 
     train_iter =  mx.gluon.data.DataLoader(train_imgs, batch_size=batch_size, shuffle=True, num_workers=num_workers, last_batch='keep')
     test_iter =  mx.gluon.data.DataLoader(test_imgs, batch_size=batch_size, shuffle=False, num_workers=num_workers, last_batch='keep')
-# 
+
     # loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
-    loss = WeightedBCEDICE(axis=1)
-    # 
-    # loss = ContrastiveLoss(axis=1)
-    # 
+    # Weight are calculated dynamatically
+    loss = WeightedBCEDICE(axis = 1, weight = None)
+
     # fixme : SGD causes a NAN during loss calculation
     if args.optimizer == 'sgd':
         optimizer_params = {

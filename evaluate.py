@@ -85,9 +85,8 @@ def recognize(network_parameters, image_path, ctx, debug):
     n_classes = 2
     n_channels = 64
     
-    img_height = 64 
-    img_width = 256
-
+    img_height = 128 
+    img_width = 352
     # img_height = 96 
     # img_width = 576
 
@@ -162,9 +161,9 @@ def recognize_patch(net, ctx, image):
         ctx = [ctx]
     start = time.time()
     
-    img_height = 64 
-    img_width = 256
-
+    img_height = 128
+    img_width = 352
+    
     # img_height = 96 
     # img_width = 576
     

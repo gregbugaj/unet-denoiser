@@ -91,7 +91,7 @@ class DownSampleBlock(nn.HybridBlock):
         self.channels = channels
         self.conv = BaseConvBlock(channels, regularization)
         self.maxPool = nn.MaxPool2D(pool_size=2, strides=2)    
-        self.dropout = nn.Dropout(.50)
+        self.dropout = nn.Dropout(.7)
 
     def hybrid_forward(self, F, x, *args, **kwargs):
         x = self.maxPool(x)

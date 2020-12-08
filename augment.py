@@ -4,7 +4,8 @@ import os
 import cv2
 import numpy as np
 from mxnet import  nd
-    
+from tqdm import tqdm
+
 
 def showAndDestroy(label, image):
     cv2.imshow(label, image)
@@ -57,34 +58,45 @@ def augment_image(img, mask, count=1):
     sometimes = lambda aug: iaa.Sometimes(0.5, aug)
 
     seq_shared = iaa.Sequential([
-         sometimes(iaa.Affine(
-             scale={"x": (0.8, 1.0), "y": (0.8, 1.0)},
-             shear=(-6, 6),
-             cval=(0, 0), # Black
-        )),
+        #  sometimes(iaa.Affine(
+        #      scale={"x": (0.8, 1.0), "y": (0.8, 1.0)},
+        #      shear=(-6, 6),
+        #      cval=(0, 0), # Black
+        # )),
 
-        iaa.CropAndPad(
-            percent=(-0.07, 0.2),
-            # pad_mode=ia.ALL,
-            pad_mode=["edge"],
-            pad_cval=(150, 200)
-        ),
+        # In some images distort local areas with varying strength.
+        sometimes(iaa.PiecewiseAffine(scale=(0.04, 0.08))),
+        # iaa.PiecewiseAffine(scale=(0.04, 0.08)),
 
-        iaa.Fliplr(0.5),
-        iaa.Flipud(0.5),
+        # iaa.CropAndPad(
+        #     percent=(-0.07, 0.2),
+        #     # pad_mode=ia.ALL,
+        #     # pad_mode=["edge"],
+        #     pad_mode=["constant", "edge"],
+        #     pad_cval=(0, 0)
+        # ),
+
+        # iaa.Fliplr(0.5),
+        # iaa.Flipud(0.5),
     ])
 
     seq = iaa.Sequential([
-        sometimes(iaa.SaltAndPepper(0.03, per_channel=False)),
+        sometimes(iaa.SaltAndPepper(0.05, per_channel=False)),
+        # iaa.SaltAndPepper(0.05, per_channel=False),
+
         # Blur each image with varying strength using
         # gaussian blur (sigma between 0 and 3.0),
         # average/uniform blur (kernel size between 2x2 and 7x7)
         # median blur (kernel size between 1x1 and 5x5).
-       sometimes(iaa.OneOf([
-            iaa.GaussianBlur((0, 2.0)),
-            iaa.AverageBlur(k=(2, 7)),
-            iaa.MedianBlur(k=(1, 3)),
-        ])),
+    #    sometimes(iaa.OneOf([
+    #         iaa.GaussianBlur((0, 2.0)),
+    #         iaa.AverageBlur(k=(2, 7)),
+    #         iaa.MedianBlur(k=(1, 3)),
+    #     ])),
+
+        # sometimes(
+        #     iaa.ElasticTransformation(alpha=(0.5, 3.5), sigma=0.25)
+        # ),
 
     ], random_order=True)
 
@@ -110,7 +122,9 @@ def ensure_exists(dir):
         
 def augment(dir_src, dir_dest):
     """Augment Image Set"""
-    print("Augment image set")
+    print("Augmenting image set")
+    print("source      = %s" % (dir_src))
+    print("destination = %s" % (dir_dest))
 
     img_dir = os.path.join(dir_src, 'image')
     mask_dir = os.path.join(dir_src, 'mask')
@@ -119,14 +133,12 @@ def augment(dir_src, dir_dest):
     ensure_exists(os.path.join(dir_dest, 'image'))
     ensure_exists(os.path.join(dir_dest, 'mask'))
 
-
-    for i, filename in enumerate(filenames):
+    for i, filename in (enumerate(tqdm(filenames))):
         try:
-            print (filename)
             img = cv2.imread(os.path.join(img_dir, filename)) 
             mask = cv2.imread(os.path.join(mask_dir, filename)) 
             # Apply transformations to the image
-            aug_images, aug_masks = augment_image(img, mask, 10)
+            aug_images, aug_masks = augment_image(img, mask, 2)
 
             # Add originals
             aug_images.append(img)
@@ -141,7 +153,7 @@ def augment(dir_src, dir_dest):
                 path_img_dest = os.path.join(dir_dest, 'image',  fname)
                 path_mask_dest = os.path.join(dir_dest, 'mask', fname)
 
-                print(path_img_dest)
+                # print(path_img_dest)
                 cv2.imwrite(path_img_dest, img)
                 cv2.imwrite(path_mask_dest, mask_img)
                 index = index + 1
@@ -152,4 +164,5 @@ def augment(dir_src, dir_dest):
 
 if __name__ == '__main__':
     # mean_('./data/train/image')
-    augment('./data/test-org', './data/test')
+    augment('./data/train', './data/train-aug')
+    augment('./data/test', './data/test-aug')

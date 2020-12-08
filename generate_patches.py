@@ -17,10 +17,10 @@ def create_patches(dir_src, dir_out):
     if not os.path.exists(dir_out):
         os.makedirs(dir_out)
 
-    size_h = 64
-    stride_h = 16
-    size_w = 256
-    stride_w = 16
+    size_h = 128
+    stride_h = 64
+    size_w = 352
+    stride_w = 352
 
     for filename in os.listdir(dir_src):
         try:

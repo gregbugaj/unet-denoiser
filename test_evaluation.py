@@ -36,9 +36,9 @@ if __name__ == '__main__':
     args.dir_src = './data/test/image'
     args.dir_out = './data/debug'
     
-    # args.network_param = './checkpoints/unet-28-0.993299.params'
-    # args.dir_src = '/home/greg/dev/unet-denoiser/assets/cleaned-examples/field-set-01'
-    # args.dir_out = '/home/greg/dev/unet-denoiser/assets/cleaned-examples/field-set-01/debug'
+    # # args.network_param = './checkpoints/unet-28-0.993299.params'
+    # args.dir_src = '/home/greg/dev/unet-denoiser/assets/cleaned-examples/field-set-03'
+    # args.dir_out = '/home/greg/dev/unet-denoiser/assets/cleaned-examples/field-set-03/debug'
     
 
     args.debug = False
@@ -61,7 +61,6 @@ if __name__ == '__main__':
         debug_img[h:2*h, :] = mask
         cv2.line(debug_img, (0, h), (debug_img.shape[1], h), (255, 0, 0), 1)
         return debug_img
-
     for _path in paths:
         try:
             filename= _path.split('/')[-1]
@@ -69,7 +68,8 @@ if __name__ == '__main__':
             print (img_path)
             src, mask = recognize(network_param, img_path, ctx, False)
             mask = 255 - mask
-            debug = get_debug_image(64 , 256, src, mask)
+            debug = get_debug_image(128 , 352, src, mask)
+            # debug = get_debug_image(64 , 256, src, mask)
             # debug = get_debug_image(96 , 576, src, mask)
             imwrite(os.path.join(dir_out, "%s_%s" % (filename, '_.tif')), debug)
             # imwrite(os.path.join(dir_out, "%s_%s" % (filename, 'src.tif')), src)

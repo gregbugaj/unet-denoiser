@@ -1,4 +1,8 @@
 from mxnet.gluon.loss import Loss, _apply_weighting, _reshape_like
+from mxnet.gluon import nn
+
+import numpy as np
+import mxnet as mx
 
 class WeightedBCEDICE(Loss):
     r"""Computes the softmax cross entropy loss. (alias: SoftmaxCELoss)
@@ -53,6 +57,8 @@ class WeightedBCEDICE(Loss):
         self._axis = axis
         self._sparse_label = sparse_label
         self._from_logits = from_logits
+        self._pool = nn.AvgPool2D(pool_size=(50, 50), strides = (1, 1), padding=0)
+
 
     def dice_loss(self, F, pred, label):
         smooth = 1.
@@ -62,6 +68,7 @@ class WeightedBCEDICE(Loss):
         score = (2 * F.mean(intersection, axis=self._batch_axis, exclude=True) + smooth) \
             / (F.mean(label, axis=self._batch_axis, exclude=True) + F.mean(pred_y, axis=self._batch_axis, exclude=True) + smooth)
         
+        # return 1 - score
         return - F.log(score)
 
 
@@ -73,6 +80,20 @@ class WeightedBCEDICE(Loss):
         else:
             label = _reshape_like(F, label, pred)
             loss = -F.sum(pred*label, axis=self._axis, keepdims=True)
+
+        # Input data should be 4D in (batch, channel, y, x) but it comes in as (batch,  y, x)
+        # Expand shape into (B x C X H x W )
+        if False:
+            data = mx.ndarray.expand_dims(label, axis=1)
+            averaged_mask = self._pool(data)
+            weight = F.ones_like(averaged_mask)
+            w0 = F.sum(weight)
+            weight = 5. * F.exp(-5. * F.abs(averaged_mask - 0.5))
+            w1 = F.sum(weight)
+            zz = (w0 / w1)
+            self._weight = zz.asnumpy().flat[0]
+
+        self._weight = None
         loss = _apply_weighting(F, loss, self._weight, sample_weight)
         diceloss = self.dice_loss(F, pred, label)
         return F.mean(loss, axis=self._batch_axis, exclude=True) + diceloss
