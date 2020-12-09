@@ -111,12 +111,9 @@ def recognize(network_parameters, image_path, ctx, debug):
 
     # Transform into required BxCxHxW shape
     data = np.transpose(normal, (2, 0, 1))
-
-    print(data.shape)
     # Exand shape into (B x H x W x c)
     data = data.astype('float32')
     data = mx.ndarray.expand_dims(data, axis=0)
-    print(data.shape)
 
     # prediction 
     out = net(data)
@@ -141,7 +138,7 @@ def recognize(network_parameters, image_path, ctx, debug):
     mask = mask * 255 # currently mask is 0 / 1 
     return src, mask
 
-def recognize_patch(net, ctx, image):
+def recognize_patch(net, ctx, image, shape):
     """Recognize form
 
     *net* trained network parameters,
@@ -161,12 +158,8 @@ def recognize_patch(net, ctx, image):
         ctx = [ctx]
     start = time.time()
     
-    img_height = 128
-    img_width = 352
-    
-    # img_height = 96 
-    # img_width = 576
-    
+    img_height = shape[0]
+    img_width = shape[1]
     n_classes = 2
 
     # prepare images
@@ -183,7 +176,6 @@ def recognize_patch(net, ctx, image):
     pred = mx.nd.argmax(out, axis=1)
     nd.waitall() # Wait for all operations to finish as they are running asynchronously
     mask = post_process_mask(pred, img_width, img_height, n_classes, p=0.5)
-    print(mask.shape)
 
     # rescaled_height = int(img_height / ratio)
     # ratio, rescaled_mask = image_resize(mask, height=rescaled_height)  

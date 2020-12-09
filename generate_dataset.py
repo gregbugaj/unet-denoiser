@@ -95,9 +95,8 @@ font_list = [
              ] # cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, cv2.FONT_HERSHEY_SCRIPT_COMPLEX, cursive
 
 # size of the synthetic images to be generated
-# syn_h, syn_w = 128, 256
 syn_h, syn_w = 128, 352 # PROD 
-# syn_h, syn_w = 96, 576 # PROD-SEGMENTS
+syn_h, syn_w = 96, 576 # PROD-SEGMENTS
 
 # scale factor
 scale_h, scale_w = 1, 1

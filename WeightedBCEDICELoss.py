@@ -81,9 +81,12 @@ class WeightedBCEDICE(Loss):
             label = _reshape_like(F, label, pred)
             loss = -F.sum(pred*label, axis=self._axis, keepdims=True)
 
+        # This does really well to provide a dynamic weight ballancing for class imbalance but it does require more testing
+        # Initial result show better results than standard Weighted BCE loss
+        
         # Input data should be 4D in (batch, channel, y, x) but it comes in as (batch,  y, x)
         # Expand shape into (B x C X H x W )
-        if False:
+        if True:
             data = mx.ndarray.expand_dims(label, axis=1)
             averaged_mask = self._pool(data)
             weight = F.ones_like(averaged_mask)
@@ -92,8 +95,11 @@ class WeightedBCEDICE(Loss):
             w1 = F.sum(weight)
             zz = (w0 / w1)
             self._weight = zz.asnumpy().flat[0]
+        else:
+            self._weight = None
 
-        self._weight = None
+        # TODO : Implement Tversky Focal Loss
+        # 
         loss = _apply_weighting(F, loss, self._weight, sample_weight)
         diceloss = self.dice_loss(F, pred, label)
         return F.mean(loss, axis=self._batch_axis, exclude=True) + diceloss

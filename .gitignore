@@ -1,6 +1,7 @@
 data/
 logs/
 checkpoints/
+data-10k-patches/
 *.params
 unet_best.params
 # Byte-compiled / optimized / DLL files

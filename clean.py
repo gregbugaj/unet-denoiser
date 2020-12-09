@@ -71,7 +71,7 @@ def clean(img_path, dir_out, network_parameters):
         patches_list = []
         for i, patch in enumerate(tqdm(patches)):
             # print('I = %s' % (i))
-            src, mask = recognize_patch(net, ctx, patch)
+            src, mask = recognize_patch(net, ctx, patch, shape = (size_h, size_w))
             mask = 255 - mask            
 
             debug = get_debug_image(size_h , size_w, src, mask)            
@@ -97,7 +97,7 @@ def clean(img_path, dir_out, network_parameters):
 if __name__ == '__main__':
     args = parse_args()
     args.network_param = './unet_best.params'
-    args.img_src = './assets/template/template-02.png'
+    args.img_src = './assets/template/template-01.png'
     args.dir_out = './data/clean'
     args.debug = False
     
