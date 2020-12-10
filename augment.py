@@ -65,7 +65,7 @@ def augment_image(img, mask, count=1):
         # )),
 
         # In some images distort local areas with varying strength.
-        sometimes(iaa.PiecewiseAffine(scale=(0.04, 0.08))),
+        sometimes(iaa.PiecewiseAffine(scale=(0.01, 0.02))),
         # iaa.PiecewiseAffine(scale=(0.04, 0.08)),
 
         # iaa.CropAndPad(
@@ -133,16 +133,16 @@ def augment(dir_src, dir_dest):
     ensure_exists(os.path.join(dir_dest, 'image'))
     ensure_exists(os.path.join(dir_dest, 'mask'))
 
-    for i, filename in (enumerate(tqdm(filenames))):
+    for i, filename in enumerate(tqdm(filenames)):
         try:
             img = cv2.imread(os.path.join(img_dir, filename)) 
             mask = cv2.imread(os.path.join(mask_dir, filename)) 
             # Apply transformations to the image
-            aug_images, aug_masks = augment_image(img, mask, 2)
+            aug_images, aug_masks = augment_image(img, mask, 3)
 
             # Add originals
-            aug_images.append(img)
-            aug_masks.append(mask)
+            # aug_images.append(img)
+            # aug_masks.append(mask)
             index = 0
             
             for a_i, a_m in zip(aug_images, aug_masks):

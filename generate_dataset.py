@@ -211,7 +211,7 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
 
             # Sometime we wan to print TrueType only
             if  np.random.choice([True, False], p = [0.50, 0.50]):
-                trueTypeFontSize = np.random.randint(30, 60)
+                trueTypeFontSize = np.random.randint(45, 60)
                 img = drawTrueTypeTextOnImage(img, txt, bottomLeftCornerOfText, trueTypeFontSize)
                 break
 
@@ -407,7 +407,7 @@ for i in tqdm(range(num_imgs)):
     bottomLeftCornerOfText = (np.random.randint(word_start_x, int(img.shape[1]/4)), np.random.randint(0, int(img.shape[0]*0.8))) # (x, y)
     # fontColor              = np.random.randint(0, 30)
     fontColor              = 0 # np.random.randint(2)
-    fontScale              = np.random.randint(1900, 2000)/ 1000
+    fontScale              = np.random.randint(1950, 2000)/ 1000
     lineType               = np.random.randint(1,2)
     thickness              = np.random.randint(1, 3)
     

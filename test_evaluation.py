@@ -30,8 +30,9 @@ if __name__ == '__main__':
     
     # shape = args.shape
     shape = (96, 576)
+    shape = (120, 600)
 
-    args.network_param = './models/dob/dobx96x576@995763.params'
+    # args.network_param = './models/dob/dobx96x576@995763.params'
     args.dir_src = './assets/cleaned-examples/field-set-04'
     args.dir_out = './assets/cleaned-examples/field-set-04/debug'
     
