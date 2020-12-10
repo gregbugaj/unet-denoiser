@@ -16,7 +16,7 @@ txt_file_dir = 'digits.txt'
 
 
 # maximun number of synthetic words to generate
-num_synthetic_imgs = 4000
+num_synthetic_imgs = 1000
 train_percentage = 0.8
 
 test_dir = os.path.join(data_dir, val_dir, noisy_dir)

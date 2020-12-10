@@ -95,8 +95,9 @@ font_list = [
              ] # cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, cv2.FONT_HERSHEY_SCRIPT_COMPLEX, cursive
 
 # size of the synthetic images to be generated
-syn_h, syn_w = 128, 352 # PROD 
-syn_h, syn_w = 96, 576 # PROD-SEGMENTS
+#syn_h, syn_w = 128, 352 # PROD 
+# syn_h, syn_w = 96, 576 # PROD-SEGMENTS
+syn_h, syn_w = 120, 600 # PROD-SEGMENTS
 
 # scale factor
 scale_h, scale_w = 1, 1
@@ -249,14 +250,14 @@ def get_noisy_img(img, y_line_list, text_height):
     noisy_img = img.copy()
 
     #Do we want to make a dirty image
-    if np.random.choice([True, False], p = [0.50, 0.50]):
-        return noisy_img
+    # if False or np.random.choice([True, False], p = [0.50, 0.50]):
+    #     return noisy_img
 
     # Add background patch
-    if np.random.choice([True, False], p = [0.80, 0.20]):
-        patch = patches_list[np.random.randint(0, len(patches_list))]
-        patch = cv2.resize(patch, (w,h))
-        noisy_img = cv2.bitwise_and(patch, noisy_img, mask = None)
+    # if True or np.random.choice([True, False], p = [0.80, 0.20]):
+    patch = patches_list[np.random.randint(0, len(patches_list))]
+    patch = cv2.resize(patch, (w,h))
+    noisy_img = cv2.bitwise_and(patch, noisy_img, mask = None)
 
     if  np.random.choice([True, False], p = [0.60, 0.40]):
         # adding horizontal line (noise)
