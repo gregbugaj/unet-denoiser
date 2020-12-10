@@ -31,9 +31,9 @@ if __name__ == '__main__':
     # shape = args.shape
     shape = (96, 576)
 
-    # # args.network_param = './checkpoints/unet-28-0.993299.params'
-    args.dir_src = '/home/greg/dev/unet-denoiser/assets/cleaned-examples/field-set-01'
-    args.dir_out = '/home/greg/dev/unet-denoiser/assets/cleaned-examples/field-set-01/debug'
+    args.network_param = './models/dob/dobx96x576@995763.params'
+    args.dir_src = './assets/cleaned-examples/angie-review'
+    args.dir_out = './assets/cleaned-examples/angie-review/debug'
     
     args.debug = False
     ctx = [mx.cpu()]
