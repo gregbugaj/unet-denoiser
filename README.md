@@ -40,3 +40,6 @@ https://github.com/chinakook/U-Net/blob/master/model_unet.py
 
 ## Network Architecture
 https://www.programmersought.com/article/92255025083/
+
+## Super-Resolution 
+https://cdn.iiit.ac.in/cdn/cvit.iiit.ac.in/images/ConferencePapers/2018/ocr_Ankit_Lat_ICPR_2018.pdf

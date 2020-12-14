@@ -95,9 +95,9 @@ font_list = [
              ] # cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, cv2.FONT_HERSHEY_SCRIPT_COMPLEX, cursive
 
 # size of the synthetic images to be generated
-#syn_h, syn_w = 128, 352 # PROD 
-# syn_h, syn_w = 96, 576 # PROD-SEGMENTS
-syn_h, syn_w = 120, 600 # PROD-SEGMENTS
+syn_h, syn_w = 128, 352 # PROD 
+# syn_h, syn_w = 120, 600 # PROD-SEGMENTS
+#$syn_h, syn_w = 220, 1500 # PROD-SEGMENTS
 
 # scale factor
 scale_h, scale_w = 1, 1
@@ -407,7 +407,7 @@ for i in tqdm(range(num_imgs)):
     bottomLeftCornerOfText = (np.random.randint(word_start_x, int(img.shape[1]/4)), np.random.randint(0, int(img.shape[0]*0.8))) # (x, y)
     # fontColor              = np.random.randint(0, 30)
     fontColor              = 0 # np.random.randint(2)
-    fontScale              = np.random.randint(1950, 2000)/ 1000
+    fontScale              = np.random.randint(1950, 2000)/ 2000
     lineType               = np.random.randint(1,2)
     thickness              = np.random.randint(1, 3)
     

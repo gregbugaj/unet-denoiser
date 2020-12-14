@@ -37,12 +37,10 @@ def clean(img_path, dir_out, network_parameters):
 
     ctx = [mx.cpu()]
     size_h = 128
-    stride_h = 128
+    stride_h = 32
     
     size_w = 352
     stride_w = 352
-
-
     img = cv2.imread(img_path)
     org_img_size = img.shape
     patches = get_patches_2(img, size_h=size_h, stride_h=stride_h, size_w=size_w, stride_w=stride_w)
@@ -97,8 +95,13 @@ def clean(img_path, dir_out, network_parameters):
 if __name__ == '__main__':
     args = parse_args()
     args.network_param = './unet_best.params'
+
     args.img_src = './assets/template/template-01.png'
     args.dir_out = './data/clean'
+
+    args.img_src = './assets/cleaned-examples/field-set-005/02.png'
+    args.dir_out = './assets/cleaned-examples/field-set-005/clean'
+
     args.debug = False
     
     img_src = args.img_src 

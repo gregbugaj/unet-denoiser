@@ -10,13 +10,16 @@ debug_dir = 'debug'
 patch_dir = './assets/patches'
 txt_file_dir = 'text.txt'
 
-patch_dir = './assets/field-patches/export'
-txt_file_dir = 'digits.txt'
+# patch_dir = './assets/field-patches/export'
+# txt_file_dir = 'digits.txt'
+
 # text file to get text from
 
+patch_dir = './assets/patches-2'
+txt_file_dir = 'text.txt'
 
 # maximun number of synthetic words to generate
-num_synthetic_imgs = 2000
+num_synthetic_imgs = 20000
 train_percentage = 0.8
 
 test_dir = os.path.join(data_dir, val_dir, noisy_dir)

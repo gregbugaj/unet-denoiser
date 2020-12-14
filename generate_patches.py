@@ -18,7 +18,7 @@ def create_patches(dir_src, dir_out):
         os.makedirs(dir_out)
 
     size_h = 128
-    stride_h = 64
+    stride_h = 32
     size_w = 352
     stride_w = 352
 
@@ -37,4 +37,4 @@ def create_patches(dir_src, dir_out):
             print(e)
 
 if __name__ == '__main__':
-    create_patches(dir_src = './assets/backgrounds', dir_out = './assets/patches')
+    create_patches(dir_src = './assets/backgrounds/set-2', dir_out = './assets/patches-2')
