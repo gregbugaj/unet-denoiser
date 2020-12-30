@@ -31,10 +31,24 @@ if __name__ == '__main__':
     # shape = args.shape
     shape = (96, 576)
     shape = (120, 600)
+    shape = (128, 352)
 
     # args.network_param = './models/dob/dobx96x576@995763.params'
-    args.dir_src = './assets/cleaned-examples/field-set-04'
-    args.dir_out = './assets/cleaned-examples/field-set-04/debug'
+    # args.network_param = './models/dob/dobx120x600x994907.params'
+    # args.dir_src = './assets/cleaned-examples/field-set-03'
+    # args.dir_out = './assets/cleaned-examples/field-set-03/debug'
+    
+
+    args.network_param = './models/form/formx128x352@995280.params'
+    args.dir_src = '/home/gbugaj/devio/unet-denoiser-samples/aggregated'
+    args.dir_out = '/home/gbugaj/devio/unet-denoiser-samples/aggregated/debug'   
+    
+    
+    args.network_param = './models/form/formx128x352@997725.params'
+    args.network_param = './models/form/formx128x352@995280.params'
+    args.network_param = './models/form/formx128x352@998452.params'
+    args.dir_src = '/home/gbugaj/devio/unet-denoiser-samples/aggregated'
+    args.dir_out = '/home/gbugaj/devio/unet-denoiser-samples/aggregated/debug-4'
     
     args.debug = False
     ctx = [mx.cpu()]
@@ -43,7 +57,14 @@ if __name__ == '__main__':
     dir_out = args.dir_out 
     network_parameters = args.network_param
 
-    paths = glob.glob('%s/*.png' %(dir_src))
+    paths = []
+    for ext in ["*.tif", "*.png"]:
+        paths.extend(glob.glob(os.path.join(dir_src, ext)))
+        
+    if len(paths) == 0 :
+        print("No images found to process in : %s" %(dir_src))
+        os.exit(1)
+
     if not os.path.exists(dir_out):
         os.makedirs(dir_out)
 
@@ -74,7 +95,7 @@ if __name__ == '__main__':
             src, mask = recognize_patch(net, ctx, patch, shape)
             mask = 255 - mask
             debug = get_debug_image(shape[0], shape[1], src, mask)
-            imwrite(os.path.join(dir_out, "%s_%s" % (filename, '_.tif')), debug)
+            imwrite(os.path.join(dir_out, "%s_%s" % (filename, '_.png')), debug)
         except Exception as e:
             print(e)
     
