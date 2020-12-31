@@ -131,7 +131,9 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, log_dir='.
                 ls = [loss(y_hat, y) for y_hat, y in zip(y_hats, ys)]
             for l in ls:
                 l.backward()
-# 
+
+            assert not np.isnan(ls), 'Model diverged with loss = NaN'
+
             print('batch loss : %s' % (ls))
             trainer.step(batch_size)
             train_l_sum += sum([l.sum().asscalar() for l in ls])

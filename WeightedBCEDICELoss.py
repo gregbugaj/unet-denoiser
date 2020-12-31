@@ -62,7 +62,7 @@ class WeightedBCEDICE(Loss):
 
     def dice_loss(self, F, pred, label):
         smooth = 1.
-        pred_y = F.argmax(pred, axis = self._axis)
+        pred_y = F.argmax(pred, axis = self._axis) # Returns the indices of the maximum values along an axis.
         intersection = pred_y * label
         # dice coeficient
         score = (2 * F.mean(intersection, axis=self._batch_axis, exclude=True) + smooth) \
@@ -97,7 +97,7 @@ class WeightedBCEDICE(Loss):
             self._weight = zz.asnumpy().flat[0]
         else:
             self._weight = None
-
+        
         # TODO : Implement Tversky Focal Loss
         # 
         loss = _apply_weighting(F, loss, self._weight, sample_weight)

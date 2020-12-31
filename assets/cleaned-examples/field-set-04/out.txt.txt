@@ -1,4 +1,4 @@
-3. PATIENT'S BIRTH DATE            SEX
-(08128 11957uK1_<[
-08 28 1957.%    )
+J. PATIENT'S BIRTH DATE            SEX
+ M2110 11955 J fF
+12 10 1955      ?
 
