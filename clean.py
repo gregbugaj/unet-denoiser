@@ -96,11 +96,11 @@ if __name__ == '__main__':
     args = parse_args()
     args.network_param = './unet_best.params'
 
-    args.img_src = './assets/template/template-01.png'
+    args.img_src = './assets/template/template-04.png'
     args.dir_out = './data/clean'
 
-    args.img_src = './assets/cleaned-examples/field-set-005/02.png'
-    args.dir_out = './assets/cleaned-examples/field-set-005/clean'
+    # args.img_src = './assets/cleaned-examples/field-set-005/02.png'
+    # args.dir_out = './assets/cleaned-examples/field-set-005/clean'
 
     args.debug = False
     

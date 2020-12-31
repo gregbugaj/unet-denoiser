@@ -86,7 +86,7 @@ class WeightedBCEDICE(Loss):
         
         # Input data should be 4D in (batch, channel, y, x) but it comes in as (batch,  y, x)
         # Expand shape into (B x C X H x W )
-        if True:
+        if False:
             data = mx.ndarray.expand_dims(label, axis=1)
             averaged_mask = self._pool(data)
             weight = F.ones_like(averaged_mask)

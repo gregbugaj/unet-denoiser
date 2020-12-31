@@ -138,7 +138,7 @@ def augment(dir_src, dir_dest):
             img = cv2.imread(os.path.join(img_dir, filename)) 
             mask = cv2.imread(os.path.join(mask_dir, filename)) 
             # Apply transformations to the image
-            aug_images, aug_masks = augment_image(img, mask, 3)
+            aug_images, aug_masks = augment_image(img, mask, 2)
 
             # Add originals
             # aug_images.append(img)

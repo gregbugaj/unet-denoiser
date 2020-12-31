@@ -128,9 +128,9 @@ def get_text():
         words_list = get_word_list() 
         word_count = 0
 
-    # Add number of small digits, as they are causing the most issues
-    if  np.random.choice([True, False], p = [0.25, 0.75]):
-        letters = '1111111111' + string.digits + '1111111111' 
+    # Add number of small digits/number, as they are causing the most issues
+    if  np.random.choice([True, False], p = [0.75, 0.25]):
+        letters = '1111111111' + string.digits + '1111111111'  + string.ascii_uppercase 
         k = random.randint(1, 2)
         n = (''.join(random.choice(letters) for i in range(k)))
         if np.random.choice([0,1], p =[0.3, 0.7]) == 1:
@@ -174,8 +174,13 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     # FreeMono.ttf
     # FreeSerif.ttf
     # "FreeSerif.ttf","FreeSerifBold.ttf",
-    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf"]) 
-    fontPath = os.path.join("/usr/share/fonts/truetype/freefont", fontFace)
+    # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf"]) 
+    # fontPath = os.path.join("/usr/share/fonts/truetype/freefont", fontFace)
+
+    # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "oldfax.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Old_Rubber_Stamp.ttf"]) 
+    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
+    fontPath = os.path.join("./assets/fonts/truetype", fontFace)
+
     font = ImageFont.truetype(fontPath, size)
     draw.text(xy, text, font=font)  
     # Make Numpy/OpenCV-compatible version
@@ -202,7 +207,7 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
         # put it on a blank image and get its height
         if line_num == 0:
             # get the correct text height 
-            big_img = np.ones((500,500), dtype = np.uint8)*255
+            big_img = np.ones((500, 500), dtype = np.uint8)*255
             big_img_text = getUpperOrLowerText(print_text)
             cv2.putText(img = big_img, text = big_img_text, org = (0, 200), fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
             text_height = get_text_height(big_img, fontColor)
@@ -211,7 +216,7 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
 
             # Sometime we wan to print TrueType only
             if  np.random.choice([True, False], p = [0.50, 0.50]):
-                trueTypeFontSize = np.random.randint(45, 60)
+                trueTypeFontSize = np.random.randint(55, 60)
                 img = drawTrueTypeTextOnImage(img, txt, bottomLeftCornerOfText, trueTypeFontSize)
                 break
 
@@ -250,8 +255,8 @@ def get_noisy_img(img, y_line_list, text_height):
     noisy_img = img.copy()
 
     #Do we want to make a dirty image
-    # if False or np.random.choice([True, False], p = [0.50, 0.50]):
-    #     return noisy_img
+    if False or np.random.choice([True, False], p = [0.50, 0.50]):
+        return noisy_img
 
     # Add background patch
     # if True or np.random.choice([True, False], p = [0.80, 0.20]):
@@ -259,7 +264,7 @@ def get_noisy_img(img, y_line_list, text_height):
     patch = cv2.resize(patch, (w,h))
     noisy_img = cv2.bitwise_and(patch, noisy_img, mask = None)
 
-    if  np.random.choice([True, False], p = [0.60, 0.40]):
+    if np.random.choice([True, False], p = [0.60, 0.40]):
         # adding horizontal line (noise)
         for y_line in y_line_list: 
 
@@ -360,7 +365,7 @@ def get_debug_image(img, noisy_img):
 
 def erode_dilate(img, noisy_img):
 
-    if np.random.choice([True, False], p = [0.70, 0.30]):
+    if np.random.choice([True, False], p = [0.90, 0.10]):
         return img, noisy_img    
 
     # erode the image
@@ -407,8 +412,10 @@ for i in tqdm(range(num_imgs)):
     bottomLeftCornerOfText = (np.random.randint(word_start_x, int(img.shape[1]/4)), np.random.randint(0, int(img.shape[0]*0.8))) # (x, y)
     # fontColor              = np.random.randint(0, 30)
     fontColor              = 0 # np.random.randint(2)
-    fontScale              = np.random.randint(1950, 2000)/ 2000
-    lineType               = np.random.randint(1,2)
+    fontScale              = np.random.randint(2300, 2400)/ 2400
+    fontScale              = np.random.uniform(1.5, 2)
+    # fontScale              = 1
+    lineType               = np.random.randint(1, 2)
     thickness              = np.random.randint(1, 3)
     
     # put text
@@ -421,7 +428,7 @@ for i in tqdm(range(num_imgs)):
     img, noisy_img = degrade_qualities(img, noisy_img)
 
     # morphological operations    
-    img, noisy_img =  erode_dilate(img, noisy_img)
+    # img, noisy_img =  erode_dilate(img, noisy_img)
 
     # make debug image
     debug_img = get_debug_image(img, noisy_img)

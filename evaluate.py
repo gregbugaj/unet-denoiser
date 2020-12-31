@@ -204,9 +204,9 @@ def imwrite(path, img):
 if __name__ == '__main__':
     args = parse_args()
     args.network_param = './unet_best.params'
-    args.img_path = './data/test/image/000044.png'
-    args.img_path = '/home/gbugaj/devio/unet-denoiser/assets/snippets/snippet.png'
-    args.img_path = '/home/greg/dev/unet-denoiser/assets/cleaned-examples/field-set-01/07.png'    
+    args.img_path = './data/test/image/000974.png'
+    # args.img_path = '/home/gbugaj/devio/unet-denoiser/assets/snippets/snippet.png'
+    # args.img_path = '/home/greg/dev/unet-denoiser/assets/cleaned-examples/field-set-01/07.png'    
     args.debug = True
 
     ctx = [mx.cpu()]
@@ -214,4 +214,4 @@ if __name__ == '__main__':
     name = args.img_path.split('/')[-1]
 
     imwrite('/tmp/debug/%s_src.tif' % (name), src)
-    imwrite('/tmp/debug/%s_mask.tif' % (name), mask )
+    imwrite('/tmp/debug/%s_mask.tif' % (name), mask)
