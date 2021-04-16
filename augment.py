@@ -81,7 +81,7 @@ def augment_image(img, mask, count=1):
     ])
 
     seq = iaa.Sequential([
-        sometimes(iaa.SaltAndPepper(0.05, per_channel=False)),
+        sometimes(iaa.Dropout((0.0, 0.002))),
         # iaa.SaltAndPepper(0.05, per_channel=False),
 
         # Blur each image with varying strength using
@@ -163,6 +163,6 @@ def augment(dir_src, dir_dest):
 
 
 if __name__ == '__main__':
-    # mean_('./data/train/image')
+    mean_('./data/train/image')
     augment('./data/train', './data/train-aug')
     augment('./data/test', './data/test-aug')

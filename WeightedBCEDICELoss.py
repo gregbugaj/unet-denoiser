@@ -57,7 +57,7 @@ class WeightedBCEDICE(Loss):
         self._axis = axis
         self._sparse_label = sparse_label
         self._from_logits = from_logits
-        self._pool = nn.AvgPool2D(pool_size=(50, 50), strides = (1, 1), padding=0)
+        self._pool = nn.AvgPool2D(pool_size=(11, 11), strides = (1, 1), padding=0)
 
 
     def dice_loss(self, F, pred, label):
@@ -86,7 +86,7 @@ class WeightedBCEDICE(Loss):
         
         # Input data should be 4D in (batch, channel, y, x) but it comes in as (batch,  y, x)
         # Expand shape into (B x C X H x W )
-        if False:
+        if True:
             data = mx.ndarray.expand_dims(label, axis=1)
             averaged_mask = self._pool(data)
             weight = F.ones_like(averaged_mask)

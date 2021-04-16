@@ -5,7 +5,7 @@ import os
 import argparse
 import glob
 from evaluate import load_network, recognize, recognize_patch, imwrite
-
+ 
 def parse_args():
     """Parse input arguments"""
     parser = argparse.ArgumentParser(description='Segmenter evaluator')
@@ -29,9 +29,12 @@ if __name__ == '__main__':
     args.dir_out = './data/debug'
     
     # shape = args.shape
+    # shape is in WxH
     shape = (96, 576)
     shape = (120, 600)
     shape = (128, 352)
+    shape = (350, 700) # box31
+    # shape = (300, 1000)
 
     # args.network_param = './models/dob/dobx120x600x994907.params'
     # args.dir_src = './assets/cleaned-examples/field-set-03'
@@ -41,7 +44,19 @@ if __name__ == '__main__':
     args.dir_src = '/home/gbugaj/devio/unet-denoiser-samples/aggregated'
     args.dir_out = '/home/gbugaj/devio/unet-denoiser-samples/aggregated/debug'   
     
+    args.network_param = './unet_best.params'
+    args.dir_src = './data-sig-validate/test/image'
+    args.dir_src = '/home/greg/dev/unet-denoiser/data-sig-validate/109771-109870'
+    args.dir_out = './data-sig-validate/cleaned'   
     
+    args.network_param = './unet_best.params'
+    args.dir_src = './assets/patches-3/box31CleanedImages/validation'
+    args.dir_out = '/home/greg/dev/unet-denoiser/assets/patches-3/box31CleanedImages/validation-cleaned'   
+    
+    args.dir_src = '/home/greg/dev/unet-denoiser/data-val-box31/train/image'
+    args.dir_out = '/home/greg/dev/unet-denoiser/data-val-box31/validation-cleaned'   
+    
+
     args.debug = False
     ctx = [mx.cpu()]
     
@@ -50,7 +65,7 @@ if __name__ == '__main__':
     network_parameters = args.network_param
 
     paths = []
-    for ext in ["*.tif", "*.png"]:
+    for ext in ["*.scaled.tif", "*.png"]:
         paths.extend(glob.glob(os.path.join(dir_src, ext)))
         
     if len(paths) == 0 :
@@ -74,6 +89,7 @@ if __name__ == '__main__':
 
     for _path in paths:
         try:
+            print(_path)
             filename= _path.split('/')[-1]
             img_path = os.path.join(dir_src, filename)
             patch = cv2.imread(img_path) 

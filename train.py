@@ -2,6 +2,8 @@
 # coding: utf-8
 # 
 from WeightedBCEDICELoss import WeightedBCEDICE
+from FocalLoss import FocalLoss
+
 import argparse
 import os
 from mxnet.gluon import loss as gloss, data as gdata, utils as gutils
@@ -132,7 +134,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, log_dir='.
             for l in ls:
                 l.backward()
 
-            assert not np.isnan(ls), 'Model diverged with loss = NaN'
+            # assert not np.isnan(ls), 'Model diverged with loss = NaN'
 
             print('batch loss : %s' % (ls))
             trainer.step(batch_size)
@@ -366,7 +368,9 @@ if __name__ == '__main__':
 
     # loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
     # Weight are calculated dynamatically
-    loss = WeightedBCEDICE(axis = 1, weight = None)
+    # loss = WeightedBCEDICE(axis = 1, weight = None)
+    loss = FocalLoss(axis=1, num_class=2)
+
 
     # fixme : SGD causes a NAN during loss calculation
     if args.optimizer == 'sgd':

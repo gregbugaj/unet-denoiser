@@ -8,10 +8,7 @@ import random
 import string
 
 import config as cfg
-
-
 from PIL import ImageFont, ImageDraw, Image  
-
 
 def q(text = ''):
     print(f'>{text}<')

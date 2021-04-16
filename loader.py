@@ -17,10 +17,11 @@ class SegDataset(gdata.Dataset):
        #91325768  23572611
        self.rgb_mean = nd.array([0.79801027 ,0.79801027 , 0.79801027 ])
        self.rgb_std = nd.array([0.33287712, 0.33287712, 0.33287712])
-
-    #    self.rgb_mean = nd.array([0.448, 0.456, 0.406])
-    #    self.rgb_std = nd.array([0.229, 0.224, 0.225])
-
+ 
+       # Signature
+    #    self.rgb_mean = nd.array([0.83428375 ,0.83428375 , 0.83428375 ])
+    #    self.rgb_std = nd.array([0.35838172, 0.35838172, 0.35838172])
+       
        size = len(features)
        self.transform = transform
        self.features_normalized = [None] * size

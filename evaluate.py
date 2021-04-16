@@ -197,6 +197,7 @@ def parse_args():
 
 def imwrite(path, img):
     try:
+        print(path)
         cv2.imwrite(path, img)
     except Exception as ident:
         print(ident)
