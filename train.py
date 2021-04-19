@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
-# 
-from WeightedBCEDICELoss import WeightedBCEDICE
-from FocalLoss import FocalLoss
 
+from WeightedBCEDICELoss import WeightedBCEDICE
+from SegmentationMetric import SegmentationMetric
+
+from FocalLoss import FocalLoss
 import argparse
 import os
 from mxnet.gluon import loss as gloss, data as gdata, utils as gutils
@@ -59,6 +60,7 @@ os.environ["MXNET_CUDNN_AUTOTUNE_DEFAULT"] = "0"
 # the RGB label of images and the names of lables
 COLORMAP = [[0, 0, 0], [255, 255, 255]]
 CLASSES = ['background', 'form']
+# https://mxnet.apache.org/versions/1.2.1/tutorials/gluon/datasets.html
 
 
 def _get_batch(batch, ctx, is_even_split=True):
@@ -72,18 +74,27 @@ def _get_batch(batch, ctx, is_even_split=True):
 
 def evaluate_accuracy(data_iter, net, ctx):
     if isinstance(ctx, mx.Context):
-        ctx = [ctx]
+        ctx = [ctx]    
+    print('Evaluating accuracy')
+    metric = SegmentationMetric(nclass=2)
     acc_sum, n = nd.array([0]), 0
     for batch in data_iter:
         features, labels, _ = _get_batch(batch, ctx)
-        for x, y in zip(features, labels):
-            y = y.astype('float32')
-            acc_sum += (net(x).argmax(axis=1) == y).sum().copyto(mx.cpu())
-            n += y.size
+        outputs = []
+        for feature, label in zip(features, labels):
+            label = label.astype('float32')
+            z = net(feature)
+            outputs.append(z)
+            acc_sum += (z.argmax(axis=1) == label).sum().copyto(mx.cpu())
+            n += label.size
         acc_sum.wait_to_read()
+        metric.update(labels, outputs)
+    print('**********************')
+    pixAcc, mIoU = metric.get()
+    print('Evaluation Accuracy : pixAcc=%f, mIoU=%f'%(pixAcc, mIoU))
     return acc_sum.asscalar() / n
 
-# 
+
 def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, log_dir='./', checkpoints_dir='./checkpoints'):
     """Train model and genereate checkpoints"""
     print('Training network  : %d' % (num_epochs))
@@ -102,6 +113,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, log_dir='.
     log.info("lr_steps : {}".format(lr_steps))
     # define a summary writer that logs data and flushes to the file every 5 seconds
     sw = SummaryWriter(logdir='./logs', flush_secs=5)
+
     # collect parameter names for logging the gradients of parameters in each epoch
     params = net.collect_params()
     param_names = params.keys()
@@ -111,6 +123,7 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, log_dir='.
     global_step = 0
 
     log.info('training on : {}'.format(ctx))
+    metric = SegmentationMetric(nclass = 2)
 
     for epoch in range(num_epochs):
         while lr_steps and epoch >= lr_steps[0]:
@@ -122,38 +135,52 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs, log_dir='.
         print('epoch # : %d' %(epoch))
         train_l_sum, train_acc_sum, n, m, start = 0.0, 0.0, 0, 0, time.time()
         btic = time.time()
+        metric.reset()
 
         for i, batch in enumerate(tqdm(train_iter)):
             # if i % 0 == 0:
-            # print("Batch Index : %d" % (i))
-            xs, ys, batch_size = _get_batch(batch, ctx)
-            ls = []
+            print("Batch Index : %d" % (i))
+            # get data and their associated labels
+            data, label, batch_size = _get_batch(batch, ctx)
+            Ls = []
+            outputs = []
             with autograd.record():
-                y_hats = [net(x) for x in xs]
-                ls = [loss(y_hat, y) for y_hat, y in zip(y_hats, ys)]
-            for l in ls:
-                l.backward()
+                for x, y in zip(data, label):
+                    z = net(x)
+                    L = loss(z, y)
+                    # store the loss and do backward after we have done forward
+                    Ls.append(L)
+                    outputs.append(z)
+                autograd.backward(Ls)
 
-            # assert not np.isnan(ls), 'Model diverged with loss = NaN'
-
-            print('batch loss : %s' % (ls))
+            print(Ls)
             trainer.step(batch_size)
-            train_l_sum += sum([l.sum().asscalar() for l in ls])
-            n += sum([l.size for l in ls])
+            metric.update(label, outputs)
+
+            pixAcc, mIoU = metric.get()
+            print('[Epoch Snap %d] training: pixAcc=%f, mIoU=%f'%(epoch, pixAcc, mIoU))
+
+            train_l_sum += sum([l.sum().asscalar() for l in Ls])
+            n += sum([l.size for l in Ls])
             train_acc_sum += sum([(y_hat.argmax(axis=1) == y).sum().asscalar()
-                                  for y_hat, y in zip(y_hats, ys)])
-            m += sum([y.size for y in ys])
+                                  for y_hat, y in zip(outputs, label)])
+            m += sum([y.size for y in label])
 
             sw.add_scalar(tag='train_l_sum', value=train_l_sum, global_step=global_step)
             global_step += 1
 
         speed = batch_size / (time.time() - btic)
         epoch_time = time.time() - start
+        pixAcc, mIoU = metric.get()
+        print('[Epoch %d] training: pixAcc=%f, mIoU=%f'%(epoch, pixAcc, mIoU))
+
+        sw.add_scalar(tag='miou', value=('pixAcc', pixAcc), global_step=epoch)
+        sw.add_scalar(tag='miou', value=('mIoU', mIoU), global_step=epoch)
+
         test_acc = evaluate_accuracy(test_iter, net, ctx)
-# 
         print('epoch %d, loss %.5f, train acc %.5f, test acc %.5f, time %.5f sec'
               % (epoch + 1, train_l_sum / n, train_acc_sum / m, test_acc, epoch_time))
-# 
+
         sw.add_scalar(tag='loss', value=(train_l_sum / n), global_step=epoch)
         # logging training/validation/test accuracy
         sw.add_scalar(tag='accuracy_curves', value=('train_acc', train_acc_sum / m), global_step=epoch)
@@ -314,13 +341,12 @@ def parse_args():
     return parser.parse_args()
 
 if __name__ == '__main__':
-
     # seed = 42
     # random.seed = seed
     # np.random.seed = seed
     # mx.random.seed(seed)
+        
     args = parse_args()
-
     if args.gpu_id is None:
         ctx = [mx.cpu()]
     else:
@@ -333,12 +359,15 @@ if __name__ == '__main__':
         os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
         # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
+    # epoch 200, loss 0.26075, train acc 0.88482, test acc 0.87221, time 1.15931 sec
+
     # Hyperparameters
     print(args)
     batch_size = args.batch_size
     num_workers = multiprocessing.cpu_count() // 2
     # python ./segmenter.py --checkpoint=load --checkpoint-file ./unet_best.params
     net = UNet(channels=64, num_class=args.num_classes)
+
     # Load checkpoint from file
     if args.checkpoint == 'new':
         print("Starting new training")
@@ -348,11 +377,12 @@ if __name__ == '__main__':
               (args.checkpoint_file))
         net.load_parameters(args.checkpoint_file, ctx=ctx)
 
+      # net.initialize(ctx=ctx)
+    print(net)
+    # net.summary(nd.ones((1, 3, 512, 512)))  # NCHW (N:batch_size, C:channel, H:height, W:width)
+
     # https://mxnet.apache.org/versions/1.6/api/python/docs/tutorials/packages/gluon/blocks/hybridize.html
     # net.hybridize() # Causes errror with the SHAPE
-    # net.initialize(ctx=ctx)
-    print(net)
-    # net.summary(nd.ones((1, 3, 64, 256)))  # NCHW (N:batch_size, C:channel, H:height, W:width)
 
     # if True:
     #     sys.exit(1)
@@ -364,13 +394,14 @@ if __name__ == '__main__':
     test_imgs = SegDataset(root=test_dir, transform = None, colormap=COLORMAP, classes=CLASSES)
 
     train_iter =  mx.gluon.data.DataLoader(train_imgs, batch_size=batch_size, shuffle=True, num_workers=num_workers, last_batch='keep')
-    test_iter =  mx.gluon.data.DataLoader(test_imgs, batch_size=batch_size, shuffle=False, num_workers=num_workers, last_batch='keep')
+    test_iter =  mx.gluon.data.DataLoader(test_imgs, batch_size=batch_size, shuffle=True, num_workers=num_workers, last_batch='keep')
 
+    # Loss function test
     # loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
     # Weight are calculated dynamatically
-    # loss = WeightedBCEDICE(axis = 1, weight = None)
+    
+    loss = WeightedBCEDICE(axis = 1, weight = None)
     loss = FocalLoss(axis=1, num_class=2)
-
 
     # fixme : SGD causes a NAN during loss calculation
     if args.optimizer == 'sgd':

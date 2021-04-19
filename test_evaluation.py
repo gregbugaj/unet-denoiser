@@ -56,6 +56,13 @@ if __name__ == '__main__':
     args.dir_src = '/home/greg/dev/unet-denoiser/data-val-box31/train/image'
     args.dir_out = '/home/greg/dev/unet-denoiser/data-val-box31/validation-cleaned'   
     
+    args.dir_src = '/home/greg/dev/unet-denoiser/data-val-box31-set2/train/image'
+    args.dir_out = '/home/greg/dev/unet-denoiser/data-val-box31-set2/validation-cleaned'   
+    
+    
+    args.dir_src = '/home/greg/dev/unet-denoiser/data-sig-validate/train/image'
+    args.dir_out = '/home/greg/dev/unet-denoiser/data-sig-validate/validation-cleaned'   
+    
 
     args.debug = False
     ctx = [mx.cpu()]

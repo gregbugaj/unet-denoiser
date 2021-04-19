@@ -59,19 +59,43 @@ class WeightedBCEDICE(Loss):
         self._from_logits = from_logits
         self._pool = nn.AvgPool2D(pool_size=(11, 11), strides = (1, 1), padding=0)
 
+    def weighted_dice_coeff(self, F, pred, label, weight):
+        smooth = 1.
+        w = weight * weight
+        pred_y = F.argmax(pred, axis = self._axis) # Returns the indices of the maximum values along an axis.
+        intersection = pred_y * label
 
-    def dice_loss(self, F, pred, label):
+        # dice coeficient
+        # mean
+        score = (2 * F.sum(w * intersection, axis=self._batch_axis, exclude=True) + smooth) \
+            / (F.sum(w * label, axis=self._batch_axis, exclude=True) + F.sum(w * pred_y, axis=self._batch_axis, exclude=True) + smooth)
+        
+        return score
+
+    def dice_coeff(self, F, pred, label):
         smooth = 1.
         pred_y = F.argmax(pred, axis = self._axis) # Returns the indices of the maximum values along an axis.
         intersection = pred_y * label
+
         # dice coeficient
-        score = (2 * F.mean(intersection, axis=self._batch_axis, exclude=True) + smooth) \
-            / (F.mean(label, axis=self._batch_axis, exclude=True) + F.mean(pred_y, axis=self._batch_axis, exclude=True) + smooth)
+        score = (2 * F.sum(intersection, axis=self._batch_axis, exclude=True) + smooth) \
+            / (F.sum(label, axis=self._batch_axis, exclude=True) + F.sum(pred_y, axis=self._batch_axis, exclude=True) + smooth)
         
+        return score
         # return 1 - score
-        return - F.log(score)
+        # return - F.log(score)
 
+    def dice_loss(self, F, pred, label):
+        loss = 1 - self.dice_coeff(F, pred, label)
+        return loss
+        # return - F.log(score)
 
+    def weighted_dice_loss(self, F, pred, label, weight):
+        loss = 1 - self.weighted_dice_coeff(F, pred, label, weight)
+        return loss
+        # return - F.log(score)
+
+        
     def hybrid_forward(self, F, pred, label, sample_weight=None):
         if not self._from_logits:
             pred = F.log_softmax(pred, self._axis)
@@ -94,12 +118,15 @@ class WeightedBCEDICE(Loss):
             weight = 5. * F.exp(-5. * F.abs(averaged_mask - 0.5))
             w1 = F.sum(weight)
             zz = (w0 / w1)
+            weight = zz.asnumpy().flat[0]
             self._weight = zz.asnumpy().flat[0]
         else:
             self._weight = None
-        
+
+        # self._weight = None
         # TODO : Implement Tversky Focal Loss
-        # 
         loss = _apply_weighting(F, loss, self._weight, sample_weight)
-        diceloss = self.dice_loss(F, pred, label)
+        # diceloss = self.dice_loss(F, pred, label)
+        diceloss = self.weighted_dice_loss(F, pred, label, self._weight)
         return F.mean(loss, axis=self._batch_axis, exclude=True) + diceloss
+        # return F.sum(loss, axis=self._batch_axis, exclude=True) + diceloss
