@@ -92,7 +92,9 @@ font_list = [
              ] # cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, cv2.FONT_HERSHEY_SCRIPT_COMPLEX, cursive
 
 # size of the synthetic images to be generated
-syn_h, syn_w = 128, 352 # PROD FORM BACKGROUD CLEANER ( Patches-1)
+syn_h, syn_w = 128, 352 # PROD 
+syn_h, syn_w = 350, 700 # PROD box31
+syn_h, syn_w = 300, 1000 # PROD box33
 
 # syn_h, syn_w = 120, 600 # PROD-SEGMENTS
 #$syn_h, syn_w = 220, 1500 # PROD-SEGMENTS
@@ -110,15 +112,34 @@ train_num = int(num_imgs*cfg.train_percentage) # training percent
 print('\nnum_imgs : ', num_imgs)
 print('train_num: ', train_num)
 
+word_start_x = 10 # min space left on the left side of the printed text
+word_start_y = 1
+word_end_y = 1   # min space left on the bottom side of the printed text
 
-word_start_x = 4 # min space left on the left side of the printed text
-word_start_y = 4
-word_end_y = 4   # min space left on the bottom side of the printed text
+def get_phone():
+    "Generate phone like string"
+
+    letters = string.digits 
+    sep = np.random.choice([True, False], p =[0.3, 0.7])
+    c = 10
+    if sep:
+        c = 3
+        d = 3
+        z = 4
+    
+    n = (''.join(random.choice(letters) for i in range(c)))
+    if sep:
+        n += '-'
+        n += ''.join(random.choice(letters) for i in range(d))
+        n += '-'
+        n += ''.join(random.choice(letters) for i in range(z))
+
+    return n
 
 def get_text():
     global word_count, words_list
     # text to be printed on the blank image
-    num_words = np.random.randint(1, 6)
+    num_words = np.random.randint(2, 6)
     
     # renew the word list in case we run out of words 
     if (word_count + num_words) >= len(words_list):
@@ -127,7 +148,7 @@ def get_text():
         word_count = 0
 
     # Add number of small digits/number, as they are causing the most issues
-    if  np.random.choice([True, False], p = [0.75, 0.25]):
+    if  False and np.random.choice([True, False], p = [0.75, 0.25]):
         letters = '1111111111' + string.digits + '1111111111'  + string.ascii_uppercase 
         k = random.randint(1, 2)
         n = (''.join(random.choice(letters) for i in range(k)))
@@ -160,6 +181,12 @@ def get_text_height(img, fontColor):
     return ymax - ymin
 
 
+def rescale_frame(frame, percent=75):
+    width = int(frame.shape[1] * percent/ 100)
+    height = int(frame.shape[0] * percent/ 100)
+    dim = (width, height)
+    return cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+
 def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     """
     Print True Type fonts using PIL and convert image back into OpenCV
@@ -176,14 +203,23 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     # fontPath = os.path.join("/usr/share/fonts/truetype/freefont", fontFace)
 
     # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "oldfax.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Old_Rubber_Stamp.ttf"]) 
-    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
+    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Times New Roman 400.ttf"]) 
+    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Times New Roman 400.ttf", "Fancy Signature Extras.ttf"]) 
     fontPath = os.path.join("./assets/fonts/truetype", fontFace)
 
     font = ImageFont.truetype(fontPath, size)
     draw.text(xy, text, font=font)  
     # Make Numpy/OpenCV-compatible version
     cv2Image = np.array(pil_im)
-    return cv2Image
+
+    # Degrade font quality 
+    res1 = rescale_frame(cv2Image, np.random.randint(30, 80))
+    width = cv2Image.shape[1] 
+    height = cv2Image.shape[0] 
+    dim = (width, height)
+    noise = cv2.resize(res1, dim, interpolation = cv2.INTER_AREA)
+    noise = cv2.threshold(noise, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    return noise
 
 def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineType, thickness):
     
@@ -196,44 +232,52 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
         return txt.lower()    
 
     # print('img.shape: ', img.shape)
-    # print('initial bottomLeftCornerOfText: ', bottomLeftCornerOfText)
+    print('initial bottomLeftCornerOfText: ', bottomLeftCornerOfText)
     fontColor = 0
     while bottomLeftCornerOfText[1] <= img.shape[0]:
         # get a line of text
         print_text = get_text()
         txt =  getUpperOrLowerText(print_text)
+
+        # phones are somewhat fixed at specific locations 
+        # box 33
+        if line_num == 0:
+            phone = get_phone()
+            trueTypeFontSize = np.random.randint(50, 60)
+            img = drawTrueTypeTextOnImage(img, phone, (np.random.randint(500, 550), np.random.randint(15, 35)), trueTypeFontSize)
+
         # put it on a blank image and get its height
         if line_num == 0:
             # get the correct text height 
             big_img = np.ones((500, 500), dtype = np.uint8)*255
             big_img_text = getUpperOrLowerText(print_text)
-            cv2.putText(img = big_img, text = big_img_text, org = (0, 200), fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
+            cv2.putText(img = big_img, text = big_img_text, org = (0, 300), fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
             text_height = get_text_height(big_img, fontColor)
             if text_height > bottomLeftCornerOfText[1]:
                 bottomLeftCornerOfText = (bottomLeftCornerOfText[0], np.random.randint(word_start_y, int(img.shape[0]*0.5)) + text_height)
 
             # Sometime we wan to print TrueType only
             if  np.random.choice([True, False], p = [0.50, 0.50]):
-                trueTypeFontSize = np.random.randint(55, 60)
+                trueTypeFontSize = np.random.randint(40, 60)
                 img = drawTrueTypeTextOnImage(img, txt, bottomLeftCornerOfText, trueTypeFontSize)
-                break
-
-            cv2.putText(img = img, text = getUpperOrLowerText(print_text), org = bottomLeftCornerOfText, fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
+                # continue
+            else:
+                cv2.putText(img = img, text = getUpperOrLowerText(print_text), org = bottomLeftCornerOfText, fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
             
             y_line_list.append(bottomLeftCornerOfText[1])
         else:
             # sampling the chances of adding one more line of text
-            one_more_line = np.random.choice([0, 1], p = [0.6, 0.4])
+            one_more_line = np.random.choice([0, 1], p = [0.5, 0.5]) # .3 , .7
             if not one_more_line:
                 break
             
-            cv2.putText(img = img, text = getUpperOrLowerText(txt), org = bottomLeftCornerOfText, fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
-            # trueTypeFontSize = np.random.randint(30, 70)
-            # img = drawTrueTypeTextOnImage(img, txt, bottomLeftCornerOfText, trueTypeFontSize)
+            # cv2.putText(img = img, text = getUpperOrLowerText(txt), org = bottomLeftCornerOfText, fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
+            trueTypeFontSize = np.random.randint(40, 60)
+            img = drawTrueTypeTextOnImage(img, txt, bottomLeftCornerOfText, trueTypeFontSize)
 
             y_line_list.append(bottomLeftCornerOfText[1])
         # calculate the (text_height+line break space) left on the bottom
-        bottom_space_left = int(text_height*(1 + np.random.randint(20, 40)/100))
+        bottom_space_left = int(text_height*(1 + np.random.randint(5, 10)/100))
         # bottom_space_left = int(text_height*(1))
         # print('bottom_space_left: ', bottom_space_left)
 
@@ -253,8 +297,8 @@ def get_noisy_img(img, y_line_list, text_height):
     noisy_img = img.copy()
 
     #Do we want to make a dirty image
-    if False or np.random.choice([True, False], p = [0.20, 0.80]):
-        return noisy_img
+    # if False or np.random.choice([True, False], p = [0.50, 0.50]):
+    #     return noisy_img
 
     # Add background patch
     # if True or np.random.choice([True, False], p = [0.80, 0.20]):
@@ -339,8 +383,8 @@ def degrade_qualities(img, noisy_img):
     degrading the quality of the images in the process.
     '''
 
-    if np.random.choice([True, False], p = [0.70, 0.30]):
-        return img, noisy_img    
+    # if np.random.choice([True, False], p = [0.70, 0.30]):
+    #     return img, noisy_img    
 
     h, w = img.shape[0], img.shape[1]
     fx=np.random.randint(50,100)/100
@@ -363,7 +407,7 @@ def get_debug_image(img, noisy_img):
 
 def erode_dilate(img, noisy_img):
 
-    if np.random.choice([True, False], p = [0.90, 0.10]):
+    if np.random.choice([True, False], p = [0.50, 0.50]):
         return img, noisy_img    
 
     # erode the image
@@ -403,11 +447,14 @@ print('\nsynthesizing image data...')
 for i in tqdm(range(num_imgs)):
     # make a blank image
     img = np.ones((h, w), dtype = np.uint8) * 255
-
     # set random parameters
     font = font_list[np.random.randint(len(font_list))]
     # bottomLeftCornerOfText = (np.random.randint(word_start_x, int(img.shape[1]/3)), np.random.randint(0, int(img.shape[0]*0.8))) # (x, y)
-    bottomLeftCornerOfText = (np.random.randint(word_start_x, int(img.shape[1]/4)), np.random.randint(0, int(img.shape[0]*0.8))) # (x, y)
+
+    bottomLeftCornerOfText = (np.random.randint(word_start_x, int(img.shape[1]/8)), np.random.randint(0, int(img.shape[0]*0.8))) # (x, y)
+    bottomLeftCornerOfText = (np.random.randint(word_start_x, int(img.shape[1]/8)), np.random.randint(int(img.shape[0] / 3), int(img.shape[0] / 3) + int(img.shape[0]*0.2))) # (x, y)
+
+
     # fontColor              = np.random.randint(0, 30)
     fontColor              = 0 # np.random.randint(2)
     fontScale              = np.random.randint(2300, 2400)/ 2400

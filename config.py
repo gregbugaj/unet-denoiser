@@ -1,8 +1,10 @@
 import os
 
 # path to the data directories
-data_dir = 'data'
-data_dir = 'data-val-box33-set1'
+data_dir = 'data-patches-2'
+# data_dir = 'data-val-box33-set1'
+# data_dir = 'data-val-patches'
+data_dir = 'data-val-patches-2' # proc codes
 train_dir = 'train'
 
 val_dir = 'test'
@@ -22,18 +24,22 @@ txt_file_dir = 'text.txt'
 patch_dir = './assets/patches'
 txt_file_dir = 'text.txt'
 
-# box 31
-patch_dir = './assets/patches-3/box31CleanedImages/box31'
+# Procedure codes 128,352
+patch_dir = './assets/patches-2'
 txt_file_dir = 'text.txt'
 
+# # box 31
+# patch_dir = './assets/patches-3/box31CleanedImages/box31'
+# txt_file_dir = 'text.txt'
 
-# box 33
-patch_dir = './assets/patches-3/box33CleanedImages/box33'
-txt_file_dir = 'text.txt'
+
+# # box 33
+# patch_dir = './assets/patches-3/box33CleanedImages/box33'
+# txt_file_dir = 'text.txt'
 
 
 # maximun number of synthetic words to generate
-num_synthetic_imgs = 120
+num_synthetic_imgs = 2000
 train_percentage = 0.8
 
 test_dir = os.path.join(data_dir, val_dir, noisy_dir)

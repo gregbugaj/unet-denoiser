@@ -33,8 +33,8 @@ if __name__ == '__main__':
     shape = (96, 576)
     shape = (120, 600)
     shape = (128, 352)
-    shape = (350, 700) # box31
-    shape = (300, 1000) # box33
+    # shape = (350, 700) # box31
+    # shape = (300, 1000) # box33
 
     # args.network_param = './models/dob/dobx120x600x994907.params'
     # args.dir_src = './assets/cleaned-examples/field-set-03'
@@ -45,6 +45,7 @@ if __name__ == '__main__':
     args.dir_out = '/home/gbugaj/devio/unet-denoiser-samples/aggregated/debug'   
     
     args.network_param = './unet_best.params'
+
     args.dir_src = './data-sig-validate/test/image'
     args.dir_src = '/home/greg/dev/unet-denoiser/data-sig-validate/109771-109870'
     args.dir_out = './data-sig-validate/cleaned'   
@@ -63,6 +64,13 @@ if __name__ == '__main__':
     args.dir_src = '/home/greg/dev/unet-denoiser/data-val-box33-set1/train/image'
     args.dir_out = '/home/greg/dev/unet-denoiser/data-val-box33-set1/validation-cleaned'   
 
+
+
+    args.dir_src = '/home/greg/dev/unet-denoiser/data-val-patches/train/image'
+    args.dir_out = '/home/greg/dev/unet-denoiser/data-val-patches/validation-cleaned'   
+
+    args.dir_src = '/home/greg/dev/unet-denoiser/data-val-patches-2/train/image'
+    args.dir_out = '/home/greg/dev/unet-denoiser/data-val-patches-2/validation-cleaned'   
     
     args.debug = False
     ctx = [mx.cpu()]
