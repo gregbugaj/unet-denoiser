@@ -34,7 +34,7 @@ if __name__ == '__main__':
     shape = (120, 600)
     shape = (128, 352)
     shape = (350, 700) # box31
-    # shape = (300, 1000)
+    shape = (300, 1000) # box33
 
     # args.network_param = './models/dob/dobx120x600x994907.params'
     # args.dir_src = './assets/cleaned-examples/field-set-03'
@@ -58,12 +58,12 @@ if __name__ == '__main__':
     
     args.dir_src = '/home/greg/dev/unet-denoiser/data-val-box31-set2/train/image'
     args.dir_out = '/home/greg/dev/unet-denoiser/data-val-box31-set2/validation-cleaned'   
-    
-    
-    args.dir_src = '/home/greg/dev/unet-denoiser/data-sig-validate/train/image'
-    args.dir_out = '/home/greg/dev/unet-denoiser/data-sig-validate/validation-cleaned'   
-    
 
+
+    args.dir_src = '/home/greg/dev/unet-denoiser/data-val-box33-set1/train/image'
+    args.dir_out = '/home/greg/dev/unet-denoiser/data-val-box33-set1/validation-cleaned'   
+
+    
     args.debug = False
     ctx = [mx.cpu()]
     
