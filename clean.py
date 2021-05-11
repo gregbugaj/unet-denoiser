@@ -40,10 +40,11 @@ def clean(img_path, dir_out, network_parameters):
     stride_h = 32
     
     size_w = 352
-    stride_w = 352
+    stride_w = 176
     img = cv2.imread(img_path)
     org_img_size = img.shape
     patches = get_patches_2(img, size_h=size_h, stride_h=stride_h, size_w=size_w, stride_w=stride_w)
+    
     print(len(patches))
     
     def get_debug_image(h, w, img, mask):
@@ -60,11 +61,14 @@ def clean(img_path, dir_out, network_parameters):
     out_image = reconstruct_from_patches_2(patches, org_img_size, size_h=size_h, stride_h=stride_h, size_w=size_w, stride_w=stride_w)[0]
     imwrite(os.path.join(dir_out, "out_image.png"), out_image)
     
+    # if True:
+    #     return
+
     prefix = "cleaned"
     output_filename=""
 
-    net = load_network(network_parameters = network_parameters, ctx = ctx)
-
+    # net = load_network(network_parameters = network_parameters, ctx = ctx)
+    
     try:
         patches_list = []
         for i, patch in enumerate(tqdm(patches)):
@@ -102,8 +106,8 @@ if __name__ == '__main__':
     # args.img_src = './assets/cleaned-examples/field-set-005/02.png'
     # args.dir_out = './assets/cleaned-examples/field-set-005/clean'
 
-    args.img_src = './assets/cleaned-examples/set-1/out_image.png'
-    args.dir_out = './assets/cleaned-examples/set-1/cleaned'
+    args.img_src = './assets/template/template-01.png'
+    args.dir_out = './assets/cleaned-examples/set-x/cleaned'
 
     args.debug = False
     
