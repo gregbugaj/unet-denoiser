@@ -366,7 +366,7 @@ if __name__ == '__main__':
     batch_size = args.batch_size
     num_workers = multiprocessing.cpu_count() // 2
     # python ./segmenter.py --checkpoint=load --checkpoint-file ./unet_best.params
-    net = UNet(channels=64, num_class=args.num_classes)
+    net = UNet(in_channels=3, num_class=args.num_classes)
 
     # Load checkpoint from file
     if args.checkpoint == 'new':
@@ -400,7 +400,7 @@ if __name__ == '__main__':
     # loss = gloss.SoftmaxCrossEntropyLoss(axis=1)
     # Weight are calculated dynamatically
     
-    loss = WeightedBCEDICE(axis = 1, weight = None)
+    # loss = WeightedBCEDICE(axis = 1, weight = None)
     loss = FocalLoss(axis=1, num_class=2)
 
     # fixme : SGD causes a NAN during loss calculation

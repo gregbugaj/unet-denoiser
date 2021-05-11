@@ -97,6 +97,8 @@ syn_h, syn_w = 128, 352 # PROD FORM BACKGROUD CLEANER ( Patches-1)
 # syn_h, syn_w = 120, 600 # PROD-SEGMENTS
 #$syn_h, syn_w = 220, 1500 # PROD-SEGMENTS
 
+# syn_h, syn_w = 128, 1056 # PROD FORM BACKGROUD CLEANER ( Patches-1)
+
 # scale factor
 scale_h, scale_w = 1, 1
 
@@ -401,38 +403,41 @@ def write_images(img, noisy_img, debug_img):
 
 print('\nsynthesizing image data...')
 for i in tqdm(range(num_imgs)):
-    # make a blank image
-    img = np.ones((h, w), dtype = np.uint8) * 255
+    try:
+        # make a blank image
+        img = np.ones((h, w), dtype = np.uint8) * 255
 
-    # set random parameters
-    font = font_list[np.random.randint(len(font_list))]
-    # bottomLeftCornerOfText = (np.random.randint(word_start_x, int(img.shape[1]/3)), np.random.randint(0, int(img.shape[0]*0.8))) # (x, y)
-    bottomLeftCornerOfText = (np.random.randint(word_start_x, int(img.shape[1]/4)), np.random.randint(0, int(img.shape[0]*0.8))) # (x, y)
-    # fontColor              = np.random.randint(0, 30)
-    fontColor              = 0 # np.random.randint(2)
-    fontScale              = np.random.randint(2300, 2400)/ 2400
-    fontScale              = np.random.uniform(1.5, 2)
-    # fontScale              = 1
-    lineType               = np.random.randint(1, 2)
-    thickness              = np.random.randint(1, 3)
-    
-    # put text
-    img, y_line_list, text_height = print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineType, thickness)
+        # set random parameters
+        font = font_list[np.random.randint(len(font_list))]
+        # bottomLeftCornerOfText = (np.random.randint(word_start_x, int(img.shape[1]/3)), np.random.randint(0, int(img.shape[0]*0.8))) # (x, y)
+        bottomLeftCornerOfText = (np.random.randint(word_start_x, int(img.shape[1]/4)), np.random.randint(0, int(img.shape[0]*0.8))) # (x, y)
+        # fontColor              = np.random.randint(0, 30)
+        fontColor              = 0 # np.random.randint(2)
+        fontScale              = np.random.randint(2300, 2400)/ 2400
+        fontScale              = np.random.uniform(1.5, 2)
+        # fontScale              = 1
+        lineType               = np.random.randint(1, 2)
+        thickness              = np.random.randint(1, 3)
+        
+        # put text
+        img, y_line_list, text_height = print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineType, thickness)
 
-    # add noise
-    noisy_img = get_noisy_img(img, y_line_list, text_height)
+        # add noise
+        noisy_img = get_noisy_img(img, y_line_list, text_height)
 
-    # degrade_quality
-    img, noisy_img = degrade_qualities(img, noisy_img)
+        # degrade_quality
+        img, noisy_img = degrade_qualities(img, noisy_img)
 
-    # morphological operations    
-    # img, noisy_img =  erode_dilate(img, noisy_img)
+        # morphological operations    
+        # img, noisy_img =  erode_dilate(img, noisy_img)
 
-    # make debug image
-    debug_img = get_debug_image(img, noisy_img)
+        # make debug image
+        debug_img = get_debug_image(img, noisy_img)
 
-    # write images
-    write_images(img, noisy_img, debug_img)
+        # write images
+        write_images(img, noisy_img, debug_img)
+    except Exception as e:
+        print(e)
 
     '''
     cv2.imshow('textonimage', original)

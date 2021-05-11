@@ -51,10 +51,10 @@ def showAndDestroy(label, image):
 def load_network(network_parameters, ctx):
     # At one point this can be generalized but right now I don't see this changing 
     n_classes = 2
-    n_channels = 64
+    n_channels = 3
 
     # Setup network
-    net = UNet(channels = n_channels, num_class = n_classes)
+    net = UNet(in_channels = n_channels, num_class = n_classes)
     net.load_parameters(network_parameters, ctx=ctx)
     
     return net

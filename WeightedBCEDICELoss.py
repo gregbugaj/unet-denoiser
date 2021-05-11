@@ -126,7 +126,7 @@ class WeightedBCEDICE(Loss):
         # self._weight = None
         # TODO : Implement Tversky Focal Loss
         loss = _apply_weighting(F, loss, self._weight, sample_weight)
-        # diceloss = self.dice_loss(F, pred, label)
-        diceloss = self.weighted_dice_loss(F, pred, label, self._weight)
+        diceloss = self.dice_loss(F, pred, label)
+        # diceloss = self.weighted_dice_loss(F, pred, label, self._weight)
         return F.mean(loss, axis=self._batch_axis, exclude=True) + diceloss
         # return F.sum(loss, axis=self._batch_axis, exclude=True) + diceloss

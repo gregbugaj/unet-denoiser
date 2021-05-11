@@ -33,6 +33,7 @@ if __name__ == '__main__':
     shape = (96, 576)
     shape = (120, 600)
     shape = (128, 352)
+    # shape = (128, 1056) # ins
     # shape = (350, 700) # box31
     # shape = (300, 1000) # box33
 
@@ -69,8 +70,15 @@ if __name__ == '__main__':
     args.dir_src = '/home/greg/dev/unet-denoiser/data-val-patches/train/image'
     args.dir_out = '/home/greg/dev/unet-denoiser/data-val-patches/validation-cleaned'   
 
-    args.dir_src = '/home/greg/dev/unet-denoiser/data-val-patches-2/train/image'
-    args.dir_out = '/home/greg/dev/unet-denoiser/data-val-patches-2/validation-cleaned'   
+    args.dir_src = '/home/greg/dev/unet-denoiser/data-val-patches/train/image'
+    args.dir_out = '/home/greg/dev/unet-denoiser/data-val-patches/validation-cleaned' 
+
+
+    # args.dir_src = '/home/greg/TRAINING-ON-DD-GPU/gpu/training/INSURED_ID/original'
+    # args.dir_out = '/home/greg/TRAINING-ON-DD-GPU/gpu/training/INSURED_ID/evaluated'   
+    
+    args.dir_src = './data-val-DIAGNOSIS_CODE_SELECTED-01/train/image'
+    args.dir_out = './data-val-DIAGNOSIS_CODE_SELECTED-01/evaluated'   
     
     args.debug = False
     ctx = [mx.cpu()]
@@ -80,7 +88,7 @@ if __name__ == '__main__':
     network_parameters = args.network_param
 
     paths = []
-    for ext in ["*.scaled.tif", "*.png"]:
+    for ext in ["*.tif", "*.png"]:
         paths.extend(glob.glob(os.path.join(dir_src, ext)))
         
     if len(paths) == 0 :
