@@ -29,7 +29,7 @@ patch_dir = './assets/patches-2'
 txt_file_dir = 'text.txt'
 
 
-# Procedure codes 128,352
+# Insured codes 128,1056
 data_dir = 'data' # proc codes
 train_dir = 'train'
 patch_dir = '/home/greg/TRAINING-ON-DD-GPU/gpu/training/INSURED_ID/images/redacted/scaled'
@@ -37,11 +37,11 @@ txt_file_dir = 'text.txt'
 
 
 # Diagnosis codes 128,352
-data_dir = 'data'
-# data_dir = 'data-val-DIAGNOSIS_CODE_SELECTED-01'
-train_dir = 'train'
-patch_dir = '/home/greg/TRAINING-ON-DD-GPU/gpu/training/DIAGNOSIS_CODE_SELECTED/images/padded'
-txt_file_dir = 'text.txt'
+# data_dir = 'data'
+# # data_dir = 'data-val-DIAGNOSIS_CODE_SELECTED-01'
+# train_dir = 'train'
+# patch_dir = '/home/greg/TRAINING-ON-DD-GPU/gpu/training/DIAGNOSIS_CODE_SELECTED/images/padded'
+# txt_file_dir = 'text.txt'
 
 
 # # box 31
@@ -55,7 +55,7 @@ txt_file_dir = 'text.txt'
 
 
 # maximun number of synthetic words to generate
-num_synthetic_imgs = 10000
+num_synthetic_imgs = 4000
 train_percentage = 0.8
 
 test_dir = os.path.join(data_dir, val_dir, noisy_dir)

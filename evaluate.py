@@ -16,8 +16,10 @@ import argparse
 
 # numpy.set_printoptions(threshold=sys.maxsize)
 
-def normalize_image(img):
+def normalize_image(img, ctx):
     """normalize image for bitonal processing"""
+    if isinstance(ctx, list) :
+        raise Exception('Context should not be an collection')
     # rgb_mean = nd.array([0.94040672, 0.94040672, 0.94040672])
     # rgb_std = nd.array([0.14480773, 0.14480773, 0.14480773])
     # second augmented set
@@ -25,8 +27,8 @@ def normalize_image(img):
     # rgb_mean = nd.array([0.93610591, 0.93610591, 0.93610591])
     # rgb_std = nd.array([0.1319155, 0.1319155, 0.1319155])
 
-    rgb_mean = nd.array([0.79801027,0.79801027, 0.79801027])
-    rgb_std = nd.array([0.33287712, 0.33287712, 0.33287712])
+    rgb_mean = nd.array([0.79801027,0.79801027, 0.79801027], ctx = ctx)
+    rgb_std = nd.array([0.33287712, 0.33287712, 0.33287712], ctx = ctx)
 
     # rgb_mean = nd.array([0.0, 0.0, 0.0])
     # rgb_std = nd.array([1.0, 1.0, 1.0])
@@ -164,8 +166,8 @@ def recognize_patch(net, ctx, image, shape):
 
     # prepare images
     src = image
-    img = mx.nd.array(src)    
-    normal = normalize_image(img)
+    img = mx.nd.array(src, ctx = ctx[0])    
+    normal = normalize_image(img, ctx = ctx[0])
     # Transform into required BxCxHxW shape
     data = np.transpose(normal, (2, 0, 1))
     # Exand shape into (B x H x W x c)

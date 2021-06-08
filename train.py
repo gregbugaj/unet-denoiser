@@ -359,6 +359,7 @@ if __name__ == '__main__':
         os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
         # os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
+    ctx = [mx.gpu(1)]
     # epoch 200, loss 0.26075, train acc 0.88482, test acc 0.87221, time 1.15931 sec
 
     # Hyperparameters
