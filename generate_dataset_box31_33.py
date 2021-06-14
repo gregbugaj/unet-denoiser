@@ -1,5 +1,6 @@
 import sys, os, glob, time, pdb, cv2
 import numpy as np
+from numpy.lib.function_base import angle
 from tqdm import tqdm
 import cv2
 import matplotlib.pyplot as plt
@@ -9,6 +10,10 @@ import string
 
 import config as cfg
 from PIL import ImageFont, ImageDraw, Image  
+
+from faker import Faker
+fake = Faker()
+
 
 def q(text = ''):
     print(f'>{text}<')
@@ -51,6 +56,42 @@ for dir_path in dir_list:
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
 
+def resize_image(image, desired_size, color=(255, 255, 255)):
+    ''' Helper function to resize an image while keeping the aspect ratio.
+    Parameter
+    ---------
+    
+    image: np.array
+        The image to be resized.
+
+    desired_size: (int, int)
+        The (height, width) of the resized image
+
+    Return
+    ------
+
+    image: np.array
+        The image of size = desired_size
+    '''
+
+    size = image.shape[:2]
+    if size[0] > desired_size[0] or size[1] > desired_size[1]:
+        ratio_w = float(desired_size[0])/size[0]
+        ratio_h = float(desired_size[1])/size[1]
+        ratio = min(ratio_w, ratio_h)
+        new_size = tuple([int(x*ratio) for x in size])
+        image = cv2.resize(image, (new_size[1], new_size[0]))
+        size = image.shape
+
+    delta_w = max(0, desired_size[1] - size[1])
+    delta_h = max(0, desired_size[0] - size[0])
+    top, bottom = delta_h//2, delta_h-(delta_h//2)
+    left, right = delta_w//2, delta_w-(delta_w//2)
+
+    image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
+    return image
+
+
 def get_word_list():
     f = open(cfg.txt_file_dir, encoding='utf-8', mode="r")
     text = f.read()
@@ -70,6 +111,9 @@ def get_patches():
         try:
             img_path = os.path.join(patch_dir, filename)
             img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+            
+            # add extra padding so we have some room to expand text beyond the path
+            img = resize_image(img, (320, 1200))
             patches.append(img)
         except Exception as e:
             print(e)
@@ -95,6 +139,7 @@ font_list = [
 syn_h, syn_w = 128, 352 # PROD 
 syn_h, syn_w = 350, 700 # PROD box31
 syn_h, syn_w = 300, 1000 # PROD box33
+syn_h, syn_w = 256, 1024 # PROD box33
 
 # syn_h, syn_w = 120, 600 # PROD-SEGMENTS
 #$syn_h, syn_w = 220, 1500 # PROD-SEGMENTS
@@ -120,7 +165,7 @@ def get_phone():
     "Generate phone like string"
 
     letters = string.digits 
-    sep = np.random.choice([True, False], p =[0.3, 0.7])
+    sep = np.random.choice([True, False], p =[0.5, 0.5])
     c = 10
     if sep:
         c = 3
@@ -146,16 +191,6 @@ def get_text():
         print('===\nrecycling the words_list')
         words_list = get_word_list() 
         word_count = 0
-
-    # Add number of small digits/number, as they are causing the most issues
-    if  False and np.random.choice([True, False], p = [0.75, 0.25]):
-        letters = '1111111111' + string.digits + '1111111111'  + string.ascii_uppercase 
-        k = random.randint(1, 2)
-        n = (''.join(random.choice(letters) for i in range(k)))
-        if np.random.choice([0,1], p =[0.3, 0.7]) == 1:
-            n += '.'
-            n += ''.join(random.choice(letters) for i in range(k//2))
-        return n
 
     print_text = ''
     for _ in range(num_words):
@@ -205,6 +240,7 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "oldfax.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Old_Rubber_Stamp.ttf"]) 
     fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Times New Roman 400.ttf"]) 
     fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Times New Roman 400.ttf", "Fancy Signature Extras.ttf"]) 
+    fontFace = np.random.choice([ "FreeMono.ttf",  "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
     fontPath = os.path.join("./assets/fonts/truetype", fontFace)
 
     font = ImageFont.truetype(fontPath, size)
@@ -213,12 +249,13 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     cv2Image = np.array(pil_im)
 
     # Degrade font quality 
-    res1 = rescale_frame(cv2Image, np.random.randint(30, 80))
+    # res1 = rescale_frame(cv2Image, np.random.randint(30, 80))
     width = cv2Image.shape[1] 
     height = cv2Image.shape[0] 
     dim = (width, height)
-    noise = cv2.resize(res1, dim, interpolation = cv2.INTER_AREA)
-    noise = cv2.threshold(noise, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+
+    # noise = cv2.resize(res1, dim, interpolation = cv2.INTER_AREA)
+    noise = cv2.threshold(cv2Image, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     return noise
 
 def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineType, thickness):
@@ -241,30 +278,42 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
 
         # phones are somewhat fixed at specific locations 
         # box 33
+        trueTypeFontSize = np.random.randint(38, 52)
         if line_num == 0:
-            phone = get_phone()
-            trueTypeFontSize = np.random.randint(50, 60)
-            img = drawTrueTypeTextOnImage(img, phone, (np.random.randint(500, 550), np.random.randint(15, 35)), trueTypeFontSize)
-
+            phone = get_phone()            
+            img = drawTrueTypeTextOnImage(img, phone, (np.random.randint(500, 550), np.random.randint(-10, 55)), trueTypeFontSize)
+      
         # put it on a blank image and get its height
         if line_num == 0:
             # get the correct text height 
-            big_img = np.ones((500, 500), dtype = np.uint8)*255
-            big_img_text = getUpperOrLowerText(print_text)
-            cv2.putText(img = big_img, text = big_img_text, org = (0, 300), fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
-            text_height = get_text_height(big_img, fontColor)
-            if text_height > bottomLeftCornerOfText[1]:
-                bottomLeftCornerOfText = (bottomLeftCornerOfText[0], np.random.randint(word_start_y, int(img.shape[0]*0.5)) + text_height)
-
-            # Sometime we wan to print TrueType only
-            if  np.random.choice([True, False], p = [0.50, 0.50]):
-                trueTypeFontSize = np.random.randint(40, 60)
-                img = drawTrueTypeTextOnImage(img, txt, bottomLeftCornerOfText, trueTypeFontSize)
-                # continue
-            else:
-                cv2.putText(img = img, text = getUpperOrLowerText(print_text), org = bottomLeftCornerOfText, fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
             
-            y_line_list.append(bottomLeftCornerOfText[1])
+            if False:
+                big_img = np.ones((500, 500), dtype = np.uint8)*255
+                big_img_text = getUpperOrLowerText(print_text)
+                cv2.putText(img = big_img, text = big_img_text, org = (0, 300), fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
+                text_height = get_text_height(big_img, fontColor)
+                if text_height > bottomLeftCornerOfText[1]:
+                    bottomLeftCornerOfText = (bottomLeftCornerOfText[0], np.random.randint(word_start_y, int(img.shape[0]*0.5)) + text_height)
+
+                # Sometime we wan to print TrueType only
+                if  True or np.random.choice([True, False], p = [0.50, 0.50]):
+                    trueTypeFontSize = np.random.randint(40, 44)
+                    img = drawTrueTypeTextOnImage(img, txt, bottomLeftCornerOfText, trueTypeFontSize)
+                    # continue
+                else:
+                    cv2.putText(img = img, text = getUpperOrLowerText(print_text), org = bottomLeftCornerOfText, fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
+                
+                y_line_list.append(bottomLeftCornerOfText[1])
+            name = fake.name()
+            address = fake.address()
+            spot = "{}\n{}".format(name, address)
+            if np.random.choice([0, 1], p = [0.5, 0.5]):
+                spot = spot.upper()
+
+            img = drawTrueTypeTextOnImage(img, spot, (np.random.randint(80, 200), np.random.randint(60, 140)), trueTypeFontSize)
+            text_height = 100
+            y_line_list.append(0)
+            break
         else:
             # sampling the chances of adding one more line of text
             one_more_line = np.random.choice([0, 1], p = [0.5, 0.5]) # .3 , .7
@@ -272,7 +321,7 @@ def print_lines(img, font, bottomLeftCornerOfText, fontColor, fontScale, lineTyp
                 break
             
             # cv2.putText(img = img, text = getUpperOrLowerText(txt), org = bottomLeftCornerOfText, fontFace = font, fontScale = fontScale, color = fontColor, thickness = thickness, lineType = lineType)
-            trueTypeFontSize = np.random.randint(40, 60)
+            trueTypeFontSize = np.random.randint(40, 50)
             img = drawTrueTypeTextOnImage(img, txt, bottomLeftCornerOfText, trueTypeFontSize)
 
             y_line_list.append(bottomLeftCornerOfText[1])
@@ -306,7 +355,7 @@ def get_noisy_img(img, y_line_list, text_height):
     patch = cv2.resize(patch, (w,h))
     noisy_img = cv2.bitwise_and(patch, noisy_img, mask = None)
 
-    if np.random.choice([True, False], p = [0.60, 0.40]):
+    if False and np.random.choice([True, False], p = [0.60, 0.40]):
         # adding horizontal line (noise)
         for y_line in y_line_list: 
 
@@ -350,10 +399,22 @@ def get_noisy_img(img, y_line_list, text_height):
                     x_points = list(range(h_line[0], h_line[1] + 1))
                     x_points_black_prob = np.random.choice([0,1], size = len(x_points), p = [0.2, 0.8])
 
-                    for idx, x in enumerate(x_points):
-                        if x_points_black_prob[idx]:
-                            noisy_img[ y_line - np.random.randint(4): y_line + np.random.randint(4), x] = np.random.randint(0,30)  
-        
+                    y_pos = y_line - np.random.randint(4)
+                    cv2.line(noisy_img, (0, y_pos), (noisy_img.shape[1], y_pos), (0, 0, 0), 2)
+                    if False:
+                        for idx, x in enumerate(x_points):
+                            if x_points_black_prob[idx]:
+                                noisy_img[ y_line - np.random.randint(4): y_line + np.random.randint(4), x] = np.random.randint(0,30)  
+
+
+    # if np.random.choice([True, False], p = [0.60, 0.40]):
+    #     y_pos = np.random.randint(80)
+    #     cv2.line(noisy_img, (0, y_pos), (noisy_img.shape[1], y_pos), (0, 0, 0), np.random.randint(1, 3))       
+    
+    # if np.random.choice([True, False], p = [0.60, 0.40]):
+    #     y_pos = np.random.randint(noisy_img.shape[0]-80, noisy_img.shape[0])
+    #     cv2.line(noisy_img, (0, y_pos), (noisy_img.shape[1], y_pos), (0, 0, 0), np.random.randint(2, 4))    
+    
     # adding vertical line (noise)
     vertical_bool = {'left': np.random.choice([0,1], p =[0.3, 0.7]), 'right': np.random.choice([0,1])} # [1 or 0, 1 or 0] whether to make vertical left line on left and right side of the image
     for left_right, bool_ in vertical_bool.items():
@@ -370,9 +431,12 @@ def get_noisy_img(img, y_line_list, text_height):
             y_points = list(range(v_start_y, v_end_y + 1))
             y_points_black_prob = np.random.choice([0,1], size = len(y_points), p = [0.2, 0.8])
 
-            for idx, y in enumerate(y_points):
-                if y_points_black_prob[idx]:
-                    noisy_img[y, v_start_x - np.random.randint(4): v_start_x + np.random.randint(4)] = np.random.randint(0,30)
+            # cv2.line(noisy_img, (v_start_x, v_start_y), (v_start_x, h), (0, 0, 0), np.random.randint(1, 3))
+            
+            if False:
+                for idx, y in enumerate(y_points):
+                    if y_points_black_prob[idx]:
+                        noisy_img[y, v_start_x - np.random.randint(2): v_start_x + np.random.randint(2)] = np.random.randint(0,30)
 
     return noisy_img
 
@@ -426,20 +490,29 @@ def write_images(img, noisy_img, debug_img):
     # noisy_img = 255 - cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     # debug_img = 255 - cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)    
     
-    img       = 255 - cv2.resize(img,       (0,0), fx = 1/scale_w, fy = 1/scale_h)
+    # img       = 255 - cv2.resize(img,       (0,0), fx = 1/scale_w, fy = 1/scale_h)
+
+    scale_h = np.random.uniform(.9, 1.1)
+    scale_w = np.random.uniform(.9, 1.1)
+
+    img       =  cv2.resize(img,       (0,0), fx = 1/scale_w, fy = 1/scale_h)
     noisy_img = cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
     img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    
+    # # Frame to target for UNET
+    # img = resize_image(img, (1024, 1024))
+    # noisy_img = resize_image(noisy_img, (1024, 1024))
 
     if img_count <= train_num:            
-        cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}.png'.format(str(img_count).zfill(6))), img) 
-        cv2.imwrite(os.path.join(data_dir, train_dir, noisy_dir, '{}.png'.format(str(img_count).zfill(6))), noisy_img) 
-        cv2.imwrite(os.path.join(data_dir, train_dir, debug_dir, '{}.png'.format(str(img_count).zfill(6))), debug_img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}.png'.format(str(img_count).zfill(8))), img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, noisy_dir, '{}.png'.format(str(img_count).zfill(8))), noisy_img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, debug_dir, '{}.png'.format(str(img_count).zfill(8))), debug_img) 
     else:
-        cv2.imwrite(os.path.join(data_dir, val_dir, imgs_dir, '{}.png'.format(str(img_count).zfill(6))), img) 
-        cv2.imwrite(os.path.join(data_dir, val_dir, noisy_dir, '{}.png'.format(str(img_count).zfill(6))), noisy_img) 
-        cv2.imwrite(os.path.join(data_dir, val_dir, debug_dir, '{}.png'.format(str(img_count).zfill(6))), debug_img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, imgs_dir, '{}.png'.format(str(img_count).zfill(8))), img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, noisy_dir, '{}.png'.format(str(img_count).zfill(8))), noisy_img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, debug_dir, '{}.png'.format(str(img_count).zfill(8))), debug_img) 
 
     img_count += 1
 

@@ -98,6 +98,7 @@ syn_h, syn_w = 128, 352 # PROD FORM BACKGROUD CLEANER ( Patches-1)
 #$syn_h, syn_w = 220, 1500 # PROD-SEGMENTS
 
 syn_h, syn_w = 128, 1056 # PROD FORM BACKGROUD CLEANER ( Patches-1)
+syn_h, syn_w = 300, 1000 # PROD box33
 
 # scale factor
 scale_h, scale_w = 1, 1

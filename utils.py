@@ -250,7 +250,8 @@ def reconstruct_from_patches(img_arr, org_img_size, stride=None, size=None):
     total_nm_images = img_arr.shape[0] // (i_max ** 2)
     nm_images = img_arr.shape[0]
 
-    # averaging_value = size // stride
+    averaging_value = size // stride
+    print('averaging_value = %s' %(averaging_value))
 
     images_list = []
     kk = 0
@@ -329,6 +330,7 @@ def reconstruct_from_patches_2(img_arr, org_img_size, size_h=None, stride_h=None
     print('stride_h : %d' % (stride_h))
     print('size_w : %d' % (size_w))
     print('stride_w : %d' % (stride_w))
+    print('nm_layers : %d' % ( img_arr.shape[3]))
 
     nm_layers = img_arr.shape[3]
 
@@ -341,7 +343,9 @@ def reconstruct_from_patches_2(img_arr, org_img_size, size_h=None, stride_h=None
 
     nm_images = img_arr.shape[0]
 
-    # averaging_value = size // stride
+    averaging_value = 4
+    print('averaging_value = %s' %(averaging_value))
+
     images_list = []
     kk = 0
     for img_count in range(total_nm_images):
@@ -359,6 +363,7 @@ def reconstruct_from_patches_2(img_arr, org_img_size, size_h=None, stride_h=None
                     ] = img_arr[kk, :, :, layer]
 
                 kk += 1
+                
         # TODO add averaging for masks - right now it's just overwritting
 
         #         for layer in range(nm_layers):
