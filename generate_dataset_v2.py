@@ -115,6 +115,27 @@ def get_text():
     print_text = print_text.strip() # to get rif of the last space
     return print_text
 
+def get_phone():
+    "Generate phone like string"
+
+    letters = string.digits 
+    sep = np.random.choice([True, False], p =[0.5, 0.5])
+    c = 10
+    if sep:
+        c = 3
+        d = 3
+        z = 4
+    
+    n = (''.join(random.choice(letters) for i in range(c)))
+    if sep:
+        n += '-'
+        n += ''.join(random.choice(letters) for i in range(d))
+        n += '-'
+        n += ''.join(random.choice(letters) for i in range(z))
+
+    return n
+
+
 def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     """
     Print True Type fonts using PIL and convert image back into OpenCV
@@ -131,7 +152,8 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     # fontPath = os.path.join("/usr/share/fonts/truetype/freefont", fontFace)
 
     # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "oldfax.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Old_Rubber_Stamp.ttf"]) 
-    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
+    # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
+    fontFace = np.random.choice([ "FreeMono.ttf",  "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
     fontPath = os.path.join("./assets/fonts/truetype", fontFace)
 
     font = ImageFont.truetype(fontPath, size)
@@ -156,7 +178,7 @@ def print_lines_single(img):
 
     return img
 
-def print_lines(img):
+def print_lines_DIAGNOSIS_CODE(img):
     def getUpperOrLowerText(txt):
         if np.random.choice([0, 1], p = [0.5, 0.5]) :
             return txt.upper()
@@ -200,7 +222,38 @@ def print_lines(img):
 
     return img
 
+
+def print_lines(img):
+    def getUpperOrLowerText(txt):
+        if np.random.choice([0, 1], p = [0.5, 0.5]) :
+            return txt.upper()
+        return txt.lower()    
+
+    # phones are somewhat fixed at specific locations 
+    # box 33
+    trueTypeFontSize = np.random.randint(38, 52)
+    phone = get_phone()            
+    img = drawTrueTypeTextOnImage(img, phone, (np.random.randint(500, 550), np.random.randint(-10, 55)), trueTypeFontSize)
         
+    # get a line of text
+    if np.random.choice([0, 1], p = [0.5, 0.5]) :
+        txt = get_text()
+    else:
+        txt = fake.name()
+
+    name = fake.name()
+    address = fake.address()
+    txt = "{}\n{}".format(name, address)
+    if np.random.choice([0, 1], p = [0.5, 0.5]):
+        txt = txt.upper()
+            
+    txt =  getUpperOrLowerText(txt)
+    trueTypeFontSize = np.random.randint(40, 52)
+
+    img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(-10, img.shape[1] / 3), np.random.randint(30, img.shape[0] / 3)), trueTypeFontSize)
+    return img
+
+
 def get_debug_image(img, noisy_img):
     debug_img = np.ones((2*h, w), dtype = np.uint8)*255 # to visualize the generated images (clean and noisy)
     debug_img[0:h, :] = img
@@ -224,7 +277,7 @@ def write_images(img, noisy_img, debug_img):
        w = img.shape[1] + np.random.randint(0, 30)
        h = img.shape[0] + np.random.randint(0, 30)
        img =  resize_image(img, (h, w), color=(255, 255, 255))
-       noisy_img =  resize_image(noisy_img, (h, w), color=(255, 255, 255))
+       noisy_img = resize_image(noisy_img, (h, w), color=(255, 255, 255))
 
     img       = 255 - cv2.resize(img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     noisy_img = cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
