@@ -184,38 +184,46 @@ def print_lines_DIAGNOSIS_CODE(img):
             return txt.upper()
         return txt.lower()    
 
+    def get_text_x():
+        # get a line of text
+        if np.random.choice([0, 1], p = [0.5, 0.5]) :
+            txt = get_text()
+        else:
+            txt = fake.name().split(' ')[0]
+        return txt
+
     # get a line of text
     txt = get_text()
-    txt = fake.name().split(' ')[0]
-    txt =  getUpperOrLowerText(txt)
+    # txt = fake.name().split(' ')[0]
+    # txt =  getUpperOrLowerText(txt)
     trueTypeFontSize = np.random.randint(40, 52)
 
+    rows = 6
     x1 = img.shape[1] / 6
-    y1 = img.shape[0] / 4
+    y1 = img.shape[0] / rows
 
     px = np.random.randint(0, x1)
     p2 = np.random.randint(0, y1)
 
-    for i in range(0, 3):
-        print(p2)
+    for i in range(0, rows):
         p2 = p2 + y1
         p1 = px
 
-        txt = fake.name().split(' ')[0]
+        txt = get_text_x()
         txt =  getUpperOrLowerText(txt)
         img = drawTrueTypeTextOnImage(img, txt, (p1 , p2), trueTypeFontSize)
 
-        txt = fake.name().split(' ')[0]
+        txt = get_text_x()
         txt =  getUpperOrLowerText(txt)
         p1 = np.random.randint(p1 + x1, p1 + x1 * 2)
         img = drawTrueTypeTextOnImage(img, txt, (p1 , p2), trueTypeFontSize)    
         
-        txt = fake.name().split(' ')[0]
+        txt = get_text_x()
         txt =  getUpperOrLowerText(txt)
         p1 = np.random.randint(p1 + x1, p1 + x1 * 3)
         img = drawTrueTypeTextOnImage(img, txt, (p1 , p2), trueTypeFontSize)
 
-        txt = fake.name().split(' ')[0]
+        txt = get_text_x()
         txt =  getUpperOrLowerText(txt)
         p1 = np.random.randint(p1 + x1, p1 + x1 * 4)
         img = drawTrueTypeTextOnImage(img, txt, (p1 , p2), trueTypeFontSize)
@@ -309,7 +317,8 @@ for i in tqdm(range(num_imgs)):
         img = np.ones((h, w), dtype = np.uint8) * 255
 
         # put text
-        img = print_lines(img)
+        # img = print_lines(img)
+        img = print_lines_DIAGNOSIS_CODE(img)
         noisy_img = cv2.bitwise_and(patch, img, mask = None)
 
         # # make debug image
