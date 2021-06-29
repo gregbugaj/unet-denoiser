@@ -152,15 +152,31 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     # fontPath = os.path.join("/usr/share/fonts/truetype/freefont", fontFace)
 
     # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "oldfax.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Old_Rubber_Stamp.ttf"]) 
-    # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
-    fontFace = np.random.choice([ "FreeMono.ttf",  "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
+    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
+    # fontFace = np.random.choice([ "FreeMono.ttf",  "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
     fontPath = os.path.join("./assets/fonts/truetype", fontFace)
 
     font = ImageFont.truetype(fontPath, size)
+    size_width, size_height = draw.textsize(text, font)
+
+    # text has to be within the bounds otherwise return same image
+    x = xy[0]
+    y = xy[1]
+    
+    img_h = cv2Image.shape[0]
+    img_w = cv2Image.shape[1]
+
+    adj_y = y + size_height
+    adj_w = x + size_width
+    
+    # print(f'size : {img_h},  {adj_y},  {size_width}, {size_height} : {xy}')
+    if adj_y > img_h or adj_w > img_w:
+        return False, cv2Image
+
     draw.text(xy, text, font=font)  
     # Make Numpy/OpenCV-compatible version
     cv2Image = np.array(pil_im)
-    return cv2Image
+    return True, cv2Image
 
 def print_lines_single(img):
     def getUpperOrLowerText(txt):
@@ -171,10 +187,21 @@ def print_lines_single(img):
     # get a line of text
     txt = get_text()
     txt = fake.name()
+    # txt = get_phone()
+
+    if np.random.choice([0, 1], p = [0.5, 0.5]) :
+        txt = get_text()
+        txt = fake.name()
+    else:
+        txt = fake.address()
+
+    if np.random.choice([0, 1], p = [0.5, 0.5]):
+        txt = txt.upper()
+            
     txt =  getUpperOrLowerText(txt)
     trueTypeFontSize = np.random.randint(40, 52)
 
-    img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(-5, img.shape[1] ), np.random.randint(20, img.shape[0])), trueTypeFontSize)
+    img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(15, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
 
     return img
 
@@ -241,7 +268,7 @@ def print_lines(img):
     # box 33
     trueTypeFontSize = np.random.randint(38, 52)
     phone = get_phone()            
-    img = drawTrueTypeTextOnImage(img, phone, (np.random.randint(500, 550), np.random.randint(-10, 55)), trueTypeFontSize)
+    valid, img = drawTrueTypeTextOnImage(img, phone, (np.random.randint(500, 550), np.random.randint(-10, 55)), trueTypeFontSize)
         
     # get a line of text
     if np.random.choice([0, 1], p = [0.5, 0.5]) :
@@ -258,8 +285,10 @@ def print_lines(img):
     txt =  getUpperOrLowerText(txt)
     trueTypeFontSize = np.random.randint(40, 52)
 
-    img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(-10, img.shape[1] / 3), np.random.randint(30, img.shape[0] / 3)), trueTypeFontSize)
-    return img
+    # valid, img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(-10, img.shape[1] / 3), np.random.randint(30, img.shape[0] / 3)), trueTypeFontSize)
+    valid, img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
+    
+    return valid, img
 
 
 def get_debug_image(img, noisy_img):
@@ -292,7 +321,7 @@ def write_images(img, noisy_img, debug_img):
     debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
     img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    img_type = 'overflow'
+    img_type = 'address'
 
     if img_count <= train_num:            
         cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}_{}.png'.format(str(img_count).zfill(8), img_type)), img) 
@@ -307,30 +336,30 @@ def write_images(img, noisy_img, debug_img):
 
 
 print('\nsynthesizing image data...')
-for i in tqdm(range(num_imgs)):
+idx = 0
+
+while idx < num_imgs: 
     try:
         patch = patches_list[np.random.randint(0, len(patches_list))]
         h = patch.shape[0]
         w = patch.shape[1]
-
         # make a blank image
         img = np.ones((h, w), dtype = np.uint8) * 255
-
         # put text
         # img = print_lines(img)
-        img = print_lines_DIAGNOSIS_CODE(img)
-        noisy_img = cv2.bitwise_and(patch, img, mask = None)
+        # img = print_lines_DIAGNOSIS_CODE(img)
+        valid, img = print_lines_single(img)
 
+        if not valid:
+            continue
+
+        noisy_img = cv2.bitwise_and(patch, img, mask = None)
         # # make debug image
         debug_img = get_debug_image(img, noisy_img)
-
         # # write images
         write_images(img, noisy_img, debug_img)
+        print(f'idx = {idx}')
+
+        idx = idx+1 
     except Exception as e:
         print(e)
-
-    '''
-    cv2.imshow('textonimage', original)
-    cv2.imshow('noisy_img', noisy_img)
-    cv2.waitKey()
-    '''

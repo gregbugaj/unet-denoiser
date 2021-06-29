@@ -222,7 +222,6 @@ def get_noisy_img(img, y_line_list, text_height):
     patch = cv2.resize(patch, (w,h))
     noisy_img = cv2.bitwise_and(patch, noisy_img, mask = None)
     
-    else:
         return 
         # adding horizontal line (noise)
         for y_line in y_line_list: 
