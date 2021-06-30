@@ -152,8 +152,8 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     # fontPath = os.path.join("/usr/share/fonts/truetype/freefont", fontFace)
 
     # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "oldfax.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Old_Rubber_Stamp.ttf"]) 
-    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
-    # fontFace = np.random.choice([ "FreeMono.ttf",  "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
+    # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
+    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
     fontPath = os.path.join("./assets/fonts/truetype", fontFace)
 
     font = ImageFont.truetype(fontPath, size)
@@ -201,7 +201,7 @@ def print_lines_single(img):
     txt =  getUpperOrLowerText(txt)
     trueTypeFontSize = np.random.randint(40, 52)
 
-    img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(15, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
+    img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1] / 4), np.random.randint(img.shape[0]/3, img.shape[0])), trueTypeFontSize)
 
     return img
 
@@ -321,7 +321,7 @@ def write_images(img, noisy_img, debug_img):
     debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
     img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    img_type = 'address'
+    img_type = 'address_blank'
 
     if img_count <= train_num:            
         cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}_{}.png'.format(str(img_count).zfill(8), img_type)), img) 

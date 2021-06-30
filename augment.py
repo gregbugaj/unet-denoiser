@@ -3,9 +3,7 @@ import argparse
 import os
 import cv2
 import numpy as np
-from mxnet import  nd
 from tqdm import tqdm
-
 
 def showAndDestroy(label, image):
     cv2.imshow(label, image)
@@ -65,7 +63,7 @@ def augment_image(img, mask, count=1):
         # )),
 
         # In some images distort local areas with varying strength.
-        sometimes(iaa.PiecewiseAffine(scale=(0.01, 0.02))),
+        sometimes(iaa.PiecewiseAffine(scale=(0.005, 0.02))),
         # iaa.PiecewiseAffine(scale=(0.04, 0.08)),
 
         # iaa.CropAndPad(
@@ -81,8 +79,8 @@ def augment_image(img, mask, count=1):
     ])
 
     seq = iaa.Sequential([
-        sometimes(iaa.Dropout((0.0, 0.002))),
-        # iaa.SaltAndPepper(0.05, per_channel=False),
+        # sometimes(iaa.Dropout((0.0, 0.002))),
+        iaa.SaltAndPepper(0.001, per_channel=False),
 
         # Blur each image with varying strength using
         # gaussian blur (sigma between 0 and 3.0),
@@ -94,9 +92,9 @@ def augment_image(img, mask, count=1):
     #         iaa.MedianBlur(k=(1, 3)),
     #     ])),
 
-        # sometimes(
-        #     iaa.ElasticTransformation(alpha=(0.5, 3.5), sigma=0.25)
-        # ),
+        sometimes(
+            iaa.ElasticTransformation(alpha=(0.5, 1.2), sigma=0.25)
+        ),
 
     ], random_order=True)
 
@@ -138,7 +136,7 @@ def augment(dir_src, dir_dest):
             img = cv2.imread(os.path.join(img_dir, filename)) 
             mask = cv2.imread(os.path.join(mask_dir, filename)) 
             # Apply transformations to the image
-            aug_images, aug_masks = augment_image(img, mask, 2)
+            aug_images, aug_masks = augment_image(img, mask, 1)
 
             # Add originals
             # aug_images.append(img)
