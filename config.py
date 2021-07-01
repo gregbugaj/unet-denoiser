@@ -70,8 +70,12 @@ txt_file_dir = 'text.txt'
 # patch_dir = './assets/patches'
 # txt_file_dir = 'text.txt'
 
+
+patch_dir = './assets/patches-3/box33CleanedImages/box33'
+txt_file_dir = 'text.txt'
+
 # maximun number of synthetic words to generate
-num_synthetic_imgs = 100000
+num_synthetic_imgs = 250000
 train_percentage = 0.8
 
 test_dir = os.path.join(data_dir, val_dir, noisy_dir)

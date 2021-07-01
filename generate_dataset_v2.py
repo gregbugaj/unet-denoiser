@@ -321,7 +321,7 @@ def write_images(img, noisy_img, debug_img):
     debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
     img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    img_type = 'address_blank'
+    img_type = 'box'
 
     if img_count <= train_num:            
         cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}_{}.png'.format(str(img_count).zfill(8), img_type)), img) 
@@ -348,7 +348,8 @@ while idx < num_imgs:
         # put text
         # img = print_lines(img)
         # img = print_lines_DIAGNOSIS_CODE(img)
-        valid, img = print_lines_single(img)
+        # valid, img = print_lines_single(img)
+        valid, img = print_lines(img)
 
         if not valid:
             continue
