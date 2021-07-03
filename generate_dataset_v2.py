@@ -76,7 +76,7 @@ def get_patches():
             img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
             patches.append(img)
         except Exception as e:
-            print(e)
+            raise e
     return patches
 
 words_list = get_word_list()
@@ -152,8 +152,8 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     # fontPath = os.path.join("/usr/share/fonts/truetype/freefont", fontFace)
 
     # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "oldfax.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Old_Rubber_Stamp.ttf"]) 
-    # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
-    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
+    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
+    # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
     fontPath = os.path.join("./assets/fonts/truetype", fontFace)
 
     font = ImageFont.truetype(fontPath, size)
@@ -171,12 +171,12 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     
     # print(f'size : {img_h},  {adj_y},  {size_width}, {size_height} : {xy}')
     if adj_y > img_h or adj_w > img_w:
-        return False, cv2Image
+        return False, cv2Image, (0, 0)
 
     draw.text(xy, text, font=font)  
     # Make Numpy/OpenCV-compatible version
     cv2Image = np.array(pil_im)
-    return True, cv2Image
+    return True, cv2Image, (size_width, size_height)
 
 def print_lines_single(img):
     def getUpperOrLowerText(txt):
@@ -193,7 +193,12 @@ def print_lines_single(img):
         txt = get_text()
         txt = fake.name()
     else:
-        txt = fake.address()
+        txt =  get_phone()  #fake.address()
+
+    # letters = string.digits 
+    # c = np.random.randint(4, 9)
+    # txt = (''.join(random.choice(letters) for i in range(c)))
+    # txt = get_phone() 
 
     if np.random.choice([0, 1], p = [0.5, 0.5]):
         txt = txt.upper()
@@ -201,9 +206,50 @@ def print_lines_single(img):
     txt =  getUpperOrLowerText(txt)
     trueTypeFontSize = np.random.randint(40, 52)
 
-    img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1] / 4), np.random.randint(img.shape[0]/3, img.shape[0])), trueTypeFontSize)
+    # img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1] / 4), np.random.randint(img.shape[0]/3, img.shape[0])), trueTypeFontSize)
+
+    img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
 
     return img
+
+def print_lines_bounded(img, boxes):
+    def getUpperOrLowerText(txt):
+        if np.random.choice([0, 1], p = [0.5, 0.5]) :
+            return txt.upper()
+        return txt.lower()    
+
+    # get a line of text
+    txt = get_text()
+    txt = fake.name()
+    # txt = get_phone()
+
+    if np.random.choice([0, 1], p = [0.5, 0.5]) :
+        txt = get_text()
+        txt = fake.name()
+    else:
+        # txt =  get_phone()  #fake.address()
+        letters = string.digits 
+        c = np.random.randint(1, 9)
+        txt = (''.join(random.choice(letters) for i in range(c)))
+
+    # letters = string.digits 
+    # c = np.random.randint(4, 9)
+    # txt = (''.join(random.choice(letters) for i in range(c)))
+    # txt = get_phone() 
+
+    if np.random.choice([0, 1], p = [0.5, 0.5]):
+        txt = txt.upper()
+            
+    txt =  getUpperOrLowerText(txt)
+    trueTypeFontSize = np.random.randint(40, 52)
+    # img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1] / 4), np.random.randint(img.shape[0]/3, img.shape[0])), trueTypeFontSize)
+    xy = (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0]))
+    valid, img, wh  = drawTrueTypeTextOnImage(img, txt, xy, trueTypeFontSize)
+
+    box = [xy[0], xy[1], wh[0], wh[1]]
+    boxes.append(box)
+
+    return valid, img
 
 def print_lines_DIAGNOSIS_CODE(img):
     def getUpperOrLowerText(txt):
@@ -321,7 +367,12 @@ def write_images(img, noisy_img, debug_img):
     debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
     img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+<<<<<<< HEAD
     img_type = 'box'
+=======
+    
+    img_type = 'phone'
+>>>>>>> 1ae0da5f2a1a8ae7a956631e50215d47ed1cc1a2
 
     if img_count <= train_num:            
         cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}_{}.png'.format(str(img_count).zfill(8), img_type)), img) 
@@ -349,8 +400,16 @@ while idx < num_imgs:
         # img = print_lines(img)
         # img = print_lines_DIAGNOSIS_CODE(img)
         # valid, img = print_lines_single(img)
+<<<<<<< HEAD
         valid, img = print_lines(img)
 
+=======
+        
+        boxes = []
+        for i in range(np.random.randint(10, 25)):
+            valid, img = print_lines_bounded(img, boxes)
+        
+>>>>>>> 1ae0da5f2a1a8ae7a956631e50215d47ed1cc1a2
         if not valid:
             continue
 
