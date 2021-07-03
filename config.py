@@ -64,6 +64,14 @@ txt_file_dir = 'text.txt'
 # HCFA07Phone
 patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA07Phone'
 patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA05PatientAddressOne'
+
+patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/CITY'
+patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/STATE'
+patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/ZIP'
+txt_file_dir = 'text.txt'
+
+
+patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText'
 txt_file_dir = 'text.txt'
 
 # Diagnosis
@@ -71,7 +79,7 @@ txt_file_dir = 'text.txt'
 # txt_file_dir = 'text.txt'
 
 # maximun number of synthetic words to generate
-num_synthetic_imgs = 100000
+num_synthetic_imgs = 10000
 train_percentage = 0.8
 
 test_dir = os.path.join(data_dir, val_dir, noisy_dir)
