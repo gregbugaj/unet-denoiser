@@ -152,8 +152,8 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     # fontPath = os.path.join("/usr/share/fonts/truetype/freefont", fontFace)
 
     # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "oldfax.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Old_Rubber_Stamp.ttf"]) 
-    # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
-    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
+    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
+    # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
     fontPath = os.path.join("./assets/fonts/truetype", fontFace)
 
     font = ImageFont.truetype(fontPath, size)
@@ -207,6 +207,10 @@ def print_lines_single(img):
     trueTypeFontSize = np.random.randint(40, 52)
 
     # img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1] / 4), np.random.randint(img.shape[0]/3, img.shape[0])), trueTypeFontSize)
+<<<<<<< HEAD
+=======
+
+>>>>>>> e2fc1cb... WIP
     img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
 
     return img
@@ -250,6 +254,7 @@ def print_lines_bounded(img, boxes):
 
     return valid, img
 
+<<<<<<< HEAD
 
 def print_lines_aligned(img, boxes):
     def getUpperOrLowerText(txt):
@@ -312,6 +317,8 @@ def print_lines_aligned(img, boxes):
     return True, img
 
 
+=======
+>>>>>>> e2fc1cb... WIP
 def print_lines_DIAGNOSIS_CODE(img):
     def getUpperOrLowerText(txt):
         if np.random.choice([0, 1], p = [0.5, 0.5]) :
@@ -428,7 +435,16 @@ def write_images(img, noisy_img, debug_img):
     debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
     img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+<<<<<<< HEAD
     img_type = 'service_lines_one_seven'
+=======
+<<<<<<< HEAD
+    img_type = 'box'
+=======
+    
+    img_type = 'phone'
+>>>>>>> 1ae0da5... wip
+>>>>>>> e2fc1cb... WIP
 
     if img_count <= train_num:            
         cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}_{}.png'.format(str(img_count).zfill(8), img_type)), img) 
@@ -456,6 +472,7 @@ while idx < num_imgs:
         # img = print_lines(img)
         # img = print_lines_DIAGNOSIS_CODE(img)
         # valid, img = print_lines_single(img)
+<<<<<<< HEAD
         # valid, img = print_lines(img)
 
         boxes = []
@@ -463,6 +480,18 @@ while idx < num_imgs:
         #     valid, img = print_lines_bounded(img, boxes)
 
         valid, img = print_lines_aligned(img, boxes)
+=======
+<<<<<<< HEAD
+        valid, img = print_lines(img)
+
+=======
+        
+        boxes = []
+        for i in range(np.random.randint(10, 25)):
+            valid, img = print_lines_bounded(img, boxes)
+        
+>>>>>>> 1ae0da5... wip
+>>>>>>> e2fc1cb... WIP
         if not valid:
             continue
 
