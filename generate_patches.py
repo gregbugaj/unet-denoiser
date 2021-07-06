@@ -1,6 +1,6 @@
 
 import os
-from utils import get_patches, get_patches_2, plot_patches, plot_patches_2
+from utils.patches import get_patches_2, plot_patches_2
 import matplotlib.pyplot as plt
 
 import numpy as np
@@ -17,11 +17,11 @@ def create_patches(dir_src, dir_out):
     if not os.path.exists(dir_out):
         os.makedirs(dir_out)
 
-    size_h = 128
+    size_h = 64
     stride_h = 32
     
-    size_w = 352
-    stride_w = 352
+    size_w = 128
+    stride_w = 64
 
     for filename in os.listdir(dir_src):
         try:
@@ -38,4 +38,5 @@ def create_patches(dir_src, dir_out):
             print(e)
 
 if __name__ == '__main__':
-    create_patches(dir_src = './assets/backgrounds/set-1', dir_out = './assets/patches-1')
+    # create_patches(dir_src = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText', dir_out = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText/patches')
+    create_patches(dir_src = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText/mod', dir_out = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText/patches')

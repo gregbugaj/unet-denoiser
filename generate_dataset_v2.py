@@ -207,10 +207,6 @@ def print_lines_single(img):
     trueTypeFontSize = np.random.randint(40, 52)
 
     # img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1] / 4), np.random.randint(img.shape[0]/3, img.shape[0])), trueTypeFontSize)
-<<<<<<< HEAD
-=======
-
->>>>>>> e2fc1cb... WIP
     img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
 
     return img
@@ -254,7 +250,6 @@ def print_lines_bounded(img, boxes):
 
     return valid, img
 
-<<<<<<< HEAD
 
 def print_lines_aligned(img, boxes):
     def getUpperOrLowerText(txt):
@@ -316,9 +311,6 @@ def print_lines_aligned(img, boxes):
 
     return True, img
 
-
-=======
->>>>>>> e2fc1cb... WIP
 def print_lines_DIAGNOSIS_CODE(img):
     def getUpperOrLowerText(txt):
         if np.random.choice([0, 1], p = [0.5, 0.5]) :
@@ -372,7 +364,7 @@ def print_lines_DIAGNOSIS_CODE(img):
     return img
 
 
-def print_lines(img):
+def print_lines_box33(img):
     def getUpperOrLowerText(txt):
         if np.random.choice([0, 1], p = [0.5, 0.5]) :
             return txt.upper()
@@ -400,7 +392,30 @@ def print_lines(img):
     trueTypeFontSize = np.random.randint(40, 52)
 
     # valid, img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(-10, img.shape[1] / 3), np.random.randint(30, img.shape[0] / 3)), trueTypeFontSize)
-    valid, img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
+    valid, img, _ = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
+    
+    return valid, img
+
+def print_lines(img):
+    def getUpperOrLowerText(txt):
+        if np.random.choice([0, 1], p = [0.5, 0.5]) :
+            return txt.upper()
+        return txt.lower()    
+
+    # get a line of text
+    if np.random.choice([0, 1], p = [0.5, 0.5]) :
+        txt = get_text()
+    else:
+        letters = string.digits 
+        c = np.random.randint(1, 9)
+        txt = (''.join(random.choice(letters) for i in range(c)))
+
+    if np.random.choice([0, 1], p = [0.5, 0.5]):
+        txt = txt.upper()
+            
+    txt =  getUpperOrLowerText(txt)
+    trueTypeFontSize = np.random.randint(32, 50)
+    valid, img, _ = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
     
     return valid, img
 
@@ -435,16 +450,7 @@ def write_images(img, noisy_img, debug_img):
     debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
     img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-<<<<<<< HEAD
-    img_type = 'service_lines_one_seven'
-=======
-<<<<<<< HEAD
-    img_type = 'box'
-=======
-    
-    img_type = 'phone'
->>>>>>> 1ae0da5... wip
->>>>>>> e2fc1cb... WIP
+    img_type = 'service_lines'
 
     if img_count <= train_num:            
         cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}_{}.png'.format(str(img_count).zfill(8), img_type)), img) 
@@ -472,26 +478,20 @@ while idx < num_imgs:
         # img = print_lines(img)
         # img = print_lines_DIAGNOSIS_CODE(img)
         # valid, img = print_lines_single(img)
-<<<<<<< HEAD
         # valid, img = print_lines(img)
 
         boxes = []
         # for i in range(np.random.randint(10, 25)):
         #     valid, img = print_lines_bounded(img, boxes)
 
-        valid, img = print_lines_aligned(img, boxes)
-=======
-<<<<<<< HEAD
+        # valid, img = print_lines_aligned(img, boxes)
         valid, img = print_lines(img)
 
-=======
+
+        # boxes = []
+        # for i in range(np.random.randint(10, 25)):
+        #     valid, img = print_lines_bounded(img, boxes)
         
-        boxes = []
-        for i in range(np.random.randint(10, 25)):
-            valid, img = print_lines_bounded(img, boxes)
-        
->>>>>>> 1ae0da5... wip
->>>>>>> e2fc1cb... WIP
         if not valid:
             continue
 
