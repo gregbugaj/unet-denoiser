@@ -62,31 +62,37 @@ txt_file_dir = 'text.txt'
 # txt_file_dir = 'text.txt'
 
 # HCFA07Phone
-patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA07Phone'
-patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA05PatientAddressOne'
+# patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA07Phone'
+# patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA05PatientAddressOne'
 
-patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/CITY'
-patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/STATE'
-patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/ZIP'
+# patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/CITY'
+# patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/STATE'
+# patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/ZIP'
 txt_file_dir = 'text.txt'
 
 
-patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText'
-txt_file_dir = 'text.txt'
-
-# Diagnosis
-# patch_dir = './assets/patches'
+# patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText'
 # txt_file_dir = 'text.txt'
 
-patch_dir = './assets/patches-3/box33CleanedImages/box33'
-txt_file_dir = 'text.txt'
+# # Diagnosis
+# # patch_dir = './assets/patches'
+# # txt_file_dir = 'text.txt'
 
-patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText/mod'
-patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText/patches'
+# patch_dir = './assets/patches-3/box33CleanedImages/box33'
+# txt_file_dir = 'text.txt'
+
+patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText/mod-v2'
+# # patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText/patches'
+# # txt_file_dir = 'text.txt'# 
+# # 
+# patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA02'
+
+patch_dir = '/home/greg/dev/unet-denoiser/assets/backgrounds/diagnosis_code'
+patch_dir = '/home/greg/dev/unet-denoiser/assets/backgrounds/diagnosis_code_alpha'
 txt_file_dir = 'text.txt'
 
 # maximun number of synthetic words to generate
-num_synthetic_imgs = 1000
+num_synthetic_imgs = 20000
 train_percentage = 0.8
 
 test_dir = os.path.join(data_dir, val_dir, noisy_dir)

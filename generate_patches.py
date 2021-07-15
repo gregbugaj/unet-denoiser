@@ -20,8 +20,8 @@ def create_patches(dir_src, dir_out):
     size_h = 64
     stride_h = 32
     
-    size_w = 128
-    stride_w = 64
+    size_w = 256
+    stride_w = 128
 
     for filename in os.listdir(dir_src):
         try:
@@ -39,4 +39,4 @@ def create_patches(dir_src, dir_out):
 
 if __name__ == '__main__':
     # create_patches(dir_src = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText', dir_out = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText/patches')
-    create_patches(dir_src = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText/mod', dir_out = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText/patches')
+    create_patches(dir_src = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText/mod-v2', dir_out = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/HCFA24NoText/patches')

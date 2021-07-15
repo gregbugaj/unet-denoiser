@@ -153,7 +153,7 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
 
     # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "oldfax.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Old_Rubber_Stamp.ttf"]) 
     fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
-    # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
+    fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
     fontPath = os.path.join("./assets/fonts/truetype", fontFace)
 
     font = ImageFont.truetype(fontPath, size)
@@ -250,7 +250,6 @@ def print_lines_bounded(img, boxes):
 
     return valid, img
 
-
 def print_lines_aligned(img, boxes):
     def getUpperOrLowerText(txt):
         if np.random.choice([0, 1], p = [0.5, 0.5]) :
@@ -264,16 +263,16 @@ def print_lines_aligned(img, boxes):
 
         if np.random.choice([0, 1], p = [0.8, 0.2]) :
             txt = get_text()
-            txt = fake.name()
+            # txt = fake.name()
         else:
             # txt =  get_phone()  #fake.address()
             letters = string.digits 
             c = np.random.randint(1, 9)
             txt = (''.join(random.choice(letters) for i in range(c)))
 
-        letters = '171717171717171717'
-        c = np.random.randint(1, 9)
-        txt = (''.join(random.choice(letters) for i in range(c)))
+        # letters = '171717171717171717'
+        # c = np.random.randint(1, 9)
+        # txt = (''.join(random.choice(letters) for i in range(c)))
         
         if np.random.choice([0, 1], p = [0.5, 0.5]):
             txt = txt.upper()
@@ -281,20 +280,20 @@ def print_lines_aligned(img, boxes):
         return getUpperOrLowerText(txt)
    
     trueTypeFontSize = np.random.randint(40, 52)
-    xy = (np.random.randint(0, img.shape[1] / 10), np.random.randint(0, img.shape[0] / 10))
+    xy = (np.random.randint(0, img.shape[1] / 10), np.random.randint(10, img.shape[0] / 3))
 
     w = img.shape[1]
     h = img.shape[0]
     start_y = xy[1]
 
     while True:
-        m_h = np.random.randint(40, 120)
+        m_h = np.random.randint(60, 120)
         start_x = xy[0]
         while True:
             txt = make_txt()    
             pos = (start_x, start_y)
             valid, img, wh = drawTrueTypeTextOnImage(img, txt, pos, trueTypeFontSize)
-            txt_w =  wh[0] + np.random.randint(40, 120)
+            txt_w =  wh[0] + np.random.randint(60, 120)
             # print(f' {start_x}, {start_y} : {valid}  : {wh}')
             start_x = start_x + txt_w
             if wh[1] > m_h:
@@ -374,7 +373,7 @@ def print_lines_box33(img):
     # box 33
     trueTypeFontSize = np.random.randint(38, 52)
     phone = get_phone()            
-    valid, img = drawTrueTypeTextOnImage(img, phone, (np.random.randint(500, 550), np.random.randint(-10, 55)), trueTypeFontSize)
+    valid, img, _ = drawTrueTypeTextOnImage(img, phone, (np.random.randint(500, 550), np.random.randint(-10, 55)), trueTypeFontSize)
         
     # get a line of text
     if np.random.choice([0, 1], p = [0.5, 0.5]) :
@@ -412,9 +411,17 @@ def print_lines(img):
 
     if np.random.choice([0, 1], p = [0.5, 0.5]):
         txt = txt.upper()
-            
-    txt =  getUpperOrLowerText(txt)
-    trueTypeFontSize = np.random.randint(32, 50)
+
+    # # txt = fake.name()
+    # letters = string.ascii_lowercase 
+    # c = np.random.randint(1, 4)
+    # txt = (''.join(random.choice(letters) for i in range(c)))
+
+    txt = get_phone()
+    # txt = fake.address()
+    txt = getUpperOrLowerText(txt)
+
+    trueTypeFontSize = np.random.randint(32, 62)
     valid, img, _ = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
     
     return valid, img
@@ -445,21 +452,23 @@ def write_images(img, noisy_img, debug_img):
        img =  resize_image(img, (h, w), color=(255, 255, 255))
        noisy_img = resize_image(noisy_img, (h, w), color=(255, 255, 255))
 
-    img       = 255 - cv2.resize(img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
+    img       = cv2.resize(img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     noisy_img = cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
     img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    img_type = 'service_lines'
+    noisy_img = cv2.threshold(noisy_img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # Both images will be threasholded
+    
+    img_type = ''
 
     if img_count <= train_num:            
-        cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}_{}.png'.format(str(img_count).zfill(8), img_type)), img) 
-        cv2.imwrite(os.path.join(data_dir, train_dir, noisy_dir, '{}_{}.png'.format(str(img_count).zfill(8), img_type)), noisy_img) 
-        cv2.imwrite(os.path.join(data_dir, train_dir, debug_dir, '{}_{}.png'.format(str(img_count).zfill(8),img_type)), debug_img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}.png'.format(str(img_count).zfill(8), img_type)), img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, noisy_dir, '{}.png'.format(str(img_count).zfill(8), img_type)), noisy_img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, debug_dir, '{}.png'.format(str(img_count).zfill(8),img_type)), debug_img) 
     else:
-        cv2.imwrite(os.path.join(data_dir, val_dir, imgs_dir, '{}_{}.png'.format(str(img_count).zfill(8),img_type)), img) 
-        cv2.imwrite(os.path.join(data_dir, val_dir, noisy_dir, '{}_{}.png'.format(str(img_count).zfill(8),img_type)), noisy_img) 
-        cv2.imwrite(os.path.join(data_dir, val_dir, debug_dir, '{}_{}.png'.format(str(img_count).zfill(8),img_type)), debug_img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, imgs_dir, '{}.png'.format(str(img_count).zfill(8),img_type)), img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, noisy_dir, '{}.png'.format(str(img_count).zfill(8),img_type)), noisy_img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, debug_dir, '{}.png'.format(str(img_count).zfill(8),img_type)), debug_img) 
 
     img_count += 1
 
@@ -484,9 +493,11 @@ while idx < num_imgs:
         # for i in range(np.random.randint(10, 25)):
         #     valid, img = print_lines_bounded(img, boxes)
 
-        # valid, img = print_lines_aligned(img, boxes)
-        valid, img = print_lines(img)
-
+        valid, img = print_lines_aligned(img, boxes)
+        
+        # valid, img = print_lines(img)
+        
+        # valid, img = print_lines_box33(img)
 
         # boxes = []
         # for i in range(np.random.randint(10, 25)):
