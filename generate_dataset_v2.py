@@ -279,8 +279,8 @@ def print_lines_aligned(img, boxes):
 
         return getUpperOrLowerText(txt)
    
-    trueTypeFontSize = np.random.randint(40, 52)
-    xy = (np.random.randint(0, img.shape[1] / 10), np.random.randint(10, img.shape[0] / 3))
+    trueTypeFontSize = np.random.randint(28, 42)
+    xy = (np.random.randint(0, img.shape[1] / 10), np.random.randint(0, img.shape[0] / 8))
 
     w = img.shape[1]
     h = img.shape[0]
@@ -417,7 +417,8 @@ def print_lines(img):
     # c = np.random.randint(1, 4)
     # txt = (''.join(random.choice(letters) for i in range(c)))
 
-    txt = get_phone()
+    # txt = get_phone()
+    txt = fake.name()
     # txt = fake.address()
     txt = getUpperOrLowerText(txt)
 
@@ -487,7 +488,6 @@ while idx < num_imgs:
         # img = print_lines(img)
         # img = print_lines_DIAGNOSIS_CODE(img)
         # valid, img = print_lines_single(img)
-        # valid, img = print_lines(img)
 
         boxes = []
         # for i in range(np.random.randint(10, 25)):
