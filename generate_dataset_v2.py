@@ -444,16 +444,16 @@ def write_images(img, noisy_img, debug_img):
     
     # img       = 255 - cv2.resize(img,       (0,0), fx = 1/scale_w, fy = 1/scale_h)
 
-    scale_h = np.random.uniform(.9, 1.1)
-    scale_w = np.random.uniform(.9, 1.1)
+    # scale_h = np.random.uniform(.9, 1.1)
+    # scale_w = np.random.uniform(.9, 1.1)
 
-    if  np.random.choice([True, False], p = [0.65, 0.35]):
-       w = img.shape[1] + np.random.randint(0, 30)
-       h = img.shape[0] + np.random.randint(0, 30)
-       img =  resize_image(img, (h, w), color=(255, 255, 255))
-       noisy_img = resize_image(noisy_img, (h, w), color=(255, 255, 255))
+    # if  np.random.choice([True, False], p = [0.65, 0.35]):
+    #    w = img.shape[1] + np.random.randint(0, 30)
+    #    h = img.shape[0] + np.random.randint(0, 30)
+    #    img =  resize_image(img, (h, w), color=(255, 255, 255))
+    #    noisy_img = resize_image(noisy_img, (h, w), color=(255, 255, 255))
 
-    img       = cv2.resize(img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
+    img       = 255 - cv2.resize(img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     noisy_img = cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
