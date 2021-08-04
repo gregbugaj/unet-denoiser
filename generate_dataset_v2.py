@@ -143,6 +143,9 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     # Pass the image to PIL  
     pil_im = Image.fromarray(cv2Image)  
     draw = ImageDraw.Draw(pil_im)  
+    draw.fontmode = "1"
+    # draw.fontmode = "L"
+
     # use a truetype font  
     # /usr/share/fonts/truetype/freefont/FreeSerif.ttf"
     # FreeMono.ttf
@@ -453,12 +456,13 @@ def write_images(img, noisy_img, debug_img):
     #    img =  resize_image(img, (h, w), color=(255, 255, 255))
     #    noisy_img = resize_image(noisy_img, (h, w), color=(255, 255, 255))
 
-    img       = 255 - cv2.resize(img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
-    noisy_img = cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
-    debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
+    # img       = cv2.resize(img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
+    # noisy_img = cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
+    # debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
     img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     noisy_img = cv2.threshold(noisy_img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # Both images will be threasholded
+    debug_img = cv2.threshold(debug_img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # Both images will be threasholded
     
     img_type = ''
 
