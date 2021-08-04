@@ -460,8 +460,8 @@ def write_images(img, noisy_img, debug_img):
     # noisy_img = cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     # debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
-    img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    noisy_img = cv2.threshold(noisy_img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # Both images will be threasholded
+    # img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    # noisy_img = cv2.threshold(noisy_img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # Both images will be threasholded
     debug_img = cv2.threshold(debug_img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # Both images will be threasholded
     
     img_type = ''
