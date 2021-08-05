@@ -74,6 +74,11 @@ def get_patches():
         try:
             img_path = os.path.join(patch_dir, filename)
             img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+            
+            # Multires images
+            if img.shape[1] > 1000:
+                continue
+
             patches.append(img)
         except Exception as e:
             raise e
@@ -157,6 +162,7 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "oldfax.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Old_Rubber_Stamp.ttf"]) 
     fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
     fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
+    fontFace = np.random.choice([ "FreeMono.ttf",  "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
     fontPath = os.path.join("./assets/fonts/truetype", fontFace)
 
     font = ImageFont.truetype(fontPath, size)
@@ -207,7 +213,8 @@ def print_lines_single(img):
         txt = txt.upper()
             
     txt =  getUpperOrLowerText(txt)
-    trueTypeFontSize = np.random.randint(40, 52)
+    # trueTypeFontSize = np.random.randint(40, 52)
+    trueTypeFontSize = np.random.randint(24, 40)
 
     # img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1] / 4), np.random.randint(img.shape[0]/3, img.shape[0])), trueTypeFontSize)
     img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
@@ -283,6 +290,7 @@ def print_lines_aligned(img, boxes):
         return getUpperOrLowerText(txt)
    
     trueTypeFontSize = np.random.randint(28, 42)
+    trueTypeFontSize = np.random.randint(24, 36)
     xy = (np.random.randint(0, img.shape[1] / 10), np.random.randint(0, img.shape[0] / 8))
 
     w = img.shape[1]
@@ -290,7 +298,7 @@ def print_lines_aligned(img, boxes):
     start_y = xy[1]
 
     while True:
-        m_h = np.random.randint(60, 120)
+        m_h = np.random.randint(45, 80)
         start_x = xy[0]
         while True:
             txt = make_txt()    
@@ -460,8 +468,8 @@ def write_images(img, noisy_img, debug_img):
     # noisy_img = cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     # debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
     
-    # img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    # noisy_img = cv2.threshold(noisy_img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # Both images will be threasholded
+    img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    noisy_img = cv2.threshold(noisy_img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # Both images will be threasholded
     debug_img = cv2.threshold(debug_img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # Both images will be threasholded
     
     img_type = ''
