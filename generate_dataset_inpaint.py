@@ -68,12 +68,24 @@ def get_word_list():
 
     return words_list
 
+
+def __scale_width(img, long_side):
+    size = img.shape[:2]
+    oh,ow = size
+    ratio = oh / ow
+    new_width = long_side
+    new_height = int(ratio * new_width)
+
+    return  cv2.resize(img, (new_width, new_height),interpolation = cv2.INTER_CUBIC)
+
+
 def get_patches():
     patches = []
     for filename in os.listdir(patch_dir):
         try:
             img_path = os.path.join(patch_dir, filename)
             img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+            img = __scale_width(img, 1700)            
             patches.append(img)
         except Exception as e:
             raise e
@@ -211,45 +223,6 @@ def print_lines_single(img):
 
     return img
 
-def print_lines_bounded(img, boxes):
-    def getUpperOrLowerText(txt):
-        if np.random.choice([0, 1], p = [0.5, 0.5]) :
-            return txt.upper()
-        return txt.lower()    
-
-    # get a line of text
-    txt = get_text()
-    txt = fake.name()
-    # txt = get_phone()
-
-    if np.random.choice([0, 1], p = [0.5, 0.5]) :
-        txt = get_text()
-        txt = fake.name()
-    else:
-        # txt =  get_phone()  #fake.address()
-        letters = string.digits 
-        c = np.random.randint(1, 9)
-        txt = (''.join(random.choice(letters) for i in range(c)))
-
-    # letters = string.digits 
-    # c = np.random.randint(4, 9)
-    # txt = (''.join(random.choice(letters) for i in range(c)))
-    # txt = get_phone() 
-
-    if np.random.choice([0, 1], p = [0.5, 0.5]):
-        txt = txt.upper()
-            
-    txt =  getUpperOrLowerText(txt)
-    trueTypeFontSize = np.random.randint(40, 52)
-    # img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1] / 4), np.random.randint(img.shape[0]/3, img.shape[0])), trueTypeFontSize)
-    xy = (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0]))
-    valid, img, wh  = drawTrueTypeTextOnImage(img, txt, xy, trueTypeFontSize)
-
-    box = [xy[0], xy[1], wh[0], wh[1]]
-    boxes.append(box)
-
-    return valid, img
-
 def print_lines_aligned(img, boxes):
     def getUpperOrLowerText(txt):
         if np.random.choice([0, 1], p = [0.5, 0.5]) :
@@ -310,90 +283,6 @@ def print_lines_aligned(img, boxes):
 
     return True, img
 
-def print_lines_DIAGNOSIS_CODE(img):
-    def getUpperOrLowerText(txt):
-        if np.random.choice([0, 1], p = [0.5, 0.5]) :
-            return txt.upper()
-        return txt.lower()    
-
-    def get_text_x():
-        # get a line of text
-        if np.random.choice([0, 1], p = [0.5, 0.5]) :
-            txt = get_text()
-        else:
-            txt = fake.name().split(' ')[0]
-        return txt
-
-    # get a line of text
-    txt = get_text()
-    # txt = fake.name().split(' ')[0]
-    # txt =  getUpperOrLowerText(txt)
-    trueTypeFontSize = np.random.randint(40, 52)
-
-    rows = 6
-    x1 = img.shape[1] / 6
-    y1 = img.shape[0] / rows
-
-    px = np.random.randint(0, x1)
-    p2 = np.random.randint(0, y1)
-
-    for i in range(0, rows):
-        p2 = p2 + y1
-        p1 = px
-
-        txt = get_text_x()
-        txt =  getUpperOrLowerText(txt)
-        img = drawTrueTypeTextOnImage(img, txt, (p1 , p2), trueTypeFontSize)
-
-        txt = get_text_x()
-        txt =  getUpperOrLowerText(txt)
-        p1 = np.random.randint(p1 + x1, p1 + x1 * 2)
-        img = drawTrueTypeTextOnImage(img, txt, (p1 , p2), trueTypeFontSize)    
-        
-        txt = get_text_x()
-        txt =  getUpperOrLowerText(txt)
-        p1 = np.random.randint(p1 + x1, p1 + x1 * 3)
-        img = drawTrueTypeTextOnImage(img, txt, (p1 , p2), trueTypeFontSize)
-
-        txt = get_text_x()
-        txt =  getUpperOrLowerText(txt)
-        p1 = np.random.randint(p1 + x1, p1 + x1 * 4)
-        img = drawTrueTypeTextOnImage(img, txt, (p1 , p2), trueTypeFontSize)
-
-    return img
-
-
-def print_lines_box33(img):
-    def getUpperOrLowerText(txt):
-        if np.random.choice([0, 1], p = [0.5, 0.5]) :
-            return txt.upper()
-        return txt.lower()    
-
-    # phones are somewhat fixed at specific locations 
-    # box 33
-    trueTypeFontSize = np.random.randint(38, 52)
-    phone = get_phone()            
-    valid, img, _ = drawTrueTypeTextOnImage(img, phone, (np.random.randint(500, 550), np.random.randint(-10, 55)), trueTypeFontSize)
-        
-    # get a line of text
-    if np.random.choice([0, 1], p = [0.5, 0.5]) :
-        txt = get_text()
-    else:
-        txt = fake.name()
-
-    name = fake.name()
-    address = fake.address()
-    txt = "{}\n{}".format(name, address)
-    if np.random.choice([0, 1], p = [0.5, 0.5]):
-        txt = txt.upper()
-            
-    txt =  getUpperOrLowerText(txt)
-    trueTypeFontSize = np.random.randint(40, 52)
-
-    # valid, img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(-10, img.shape[1] / 3), np.random.randint(30, img.shape[0] / 3)), trueTypeFontSize)
-    valid, img, _ = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
-    
-    return valid, img
 
 def print_lines(img):
     def getUpperOrLowerText(txt):
@@ -482,38 +371,48 @@ while idx < num_imgs:
         patch = patches_list[np.random.randint(0, len(patches_list))]
         h = patch.shape[0]
         w = patch.shape[1]
+
         # make a blank image
         img = np.ones((h, w), dtype = np.uint8) * 255
-        # put text
-        # img = print_lines(img)
-        # img = print_lines_DIAGNOSIS_CODE(img)
-        # valid, img = print_lines_single(img)
-
         boxes = []
-        # for i in range(np.random.randint(10, 25)):
-        #     valid, img = print_lines_bounded(img, boxes)
 
         valid, img = print_lines_aligned(img, boxes)
         
-        # valid, img = print_lines(img)
-        
-        # valid, img = print_lines_box33(img)
-
-        # boxes = []
-        # for i in range(np.random.randint(10, 25)):
-        #     valid, img = print_lines_bounded(img, boxes)
-        
         if not valid:
             continue
-
+       
+        # mask = 255 - patch
+        mask = 1 *  patch
+        # mask = patch
+        mask[mask == 255] = [200]
+        # mask[mask < 255] = [240]
+        
         # noisy_img = cv2.bitwise_and(patch, img, mask = None)
         # noisy_img = cv2.bitwise_and(patch, img, mask = None)
-        noisy_img = 255 - patch
+        # noisy_img =  patch
         # # make debug image
-        debug_img = get_debug_image(img, noisy_img)
+        # debug_img = get_debug_image(img, noisy_img)
         # # write images
-        write_images(img, noisy_img, debug_img)
         print(f'idx = {idx}')
+
+        data_dir = '/tmp/form-segmentation'
+        debug_dir = 'debug'
+        img_dir = 'image'
+        mask_dir = 'mask'
+        
+        # Taking a matrix of size 5 as the kernel
+        kernel = np.ones((5,5), np.uint8)
+        img_erode = cv2.erode(img, kernel, iterations=1)
+
+        patch = cv2.bitwise_and(patch, img, mask = None)
+        mask = cv2.bitwise_and(mask, img_erode, mask = None)
+
+        patch = cv2.GaussianBlur(patch,(7,7),cv2.BORDER_DEFAULT)
+        mask = cv2.GaussianBlur(mask,(7,7),cv2.BORDER_DEFAULT)
+
+        cv2.imwrite(os.path.join(data_dir, img_dir, '{}.png'.format(str(idx).zfill(8))), patch) 
+        cv2.imwrite(os.path.join(data_dir, debug_dir, '{}.png'.format(str(idx).zfill(8))), img) 
+        cv2.imwrite(os.path.join(data_dir, mask_dir, '{}.png'.format(str(idx).zfill(8))), mask) 
 
         idx = idx+1 
     except Exception as e:
