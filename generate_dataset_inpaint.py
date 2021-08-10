@@ -384,15 +384,8 @@ while idx < num_imgs:
         # turn black/white
         mask = 255 - patch
         # mask[mask == 255] = [230]
-        # mask[mask < 230] = [255]
+        mask[mask  < 255] = [220]
 
-        # mask = 1 *  patch
-        # mask = patch
-        # mask[mask == 255] = [240]
-        # mask[mask < 255] = [240]
-        
-        # # make debug image
-        # debug_img = get_debug_image(img, noisy_img)
         # # write images
         print(f'idx = {idx}')
 
@@ -401,20 +394,16 @@ while idx < num_imgs:
         img_dir = 'image'
         mask_dir = 'mask'
         
-        kernel = np.ones((7,7), np.uint8)
+        kernel = np.ones((5,5), np.uint8)
         img_erode = cv2.erode(img, kernel, iterations=1)
 
         patch = cv2.bitwise_and(patch, img, mask = None)
-        mask = img_erode
-        mask = cv2.threshold(mask, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
         patch = cv2.threshold(patch, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-        # mask[mask == 255] = [245]
+        __img = cv2.threshold(img_erode, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
-        # mask = cv2.bitwise_and(mask, img_erode, mask = None)
-
+        mask = cv2.bitwise_and(mask, __img, mask = None)
         # patch = cv2.GaussianBlur(patch,(9,9),cv2.BORDER_DEFAULT)
-        # mask = cv2.GaussianBlur(mask,(9,9),cv2.BORDER_DEFAULT)
-
+  
         cv2.imwrite(os.path.join(data_dir, img_dir, '{}.png'.format(str(idx).zfill(8))), patch) 
         cv2.imwrite(os.path.join(data_dir, debug_dir, '{}.png'.format(str(idx).zfill(8))), img) 
         cv2.imwrite(os.path.join(data_dir, mask_dir, '{}.png'.format(str(idx).zfill(8))), mask) 
