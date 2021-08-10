@@ -381,15 +381,16 @@ while idx < num_imgs:
         if not valid:
             continue
        
-        # mask = 255 - patch
-        mask = 1 *  patch
+        # turn black/white
+        mask = 255 - patch
+        # mask[mask == 255] = [230]
+        # mask[mask < 230] = [255]
+
+        # mask = 1 *  patch
         # mask = patch
-        mask[mask == 255] = [200]
+        # mask[mask == 255] = [240]
         # mask[mask < 255] = [240]
         
-        # noisy_img = cv2.bitwise_and(patch, img, mask = None)
-        # noisy_img = cv2.bitwise_and(patch, img, mask = None)
-        # noisy_img =  patch
         # # make debug image
         # debug_img = get_debug_image(img, noisy_img)
         # # write images
@@ -400,15 +401,19 @@ while idx < num_imgs:
         img_dir = 'image'
         mask_dir = 'mask'
         
-        # Taking a matrix of size 5 as the kernel
-        kernel = np.ones((5,5), np.uint8)
+        kernel = np.ones((7,7), np.uint8)
         img_erode = cv2.erode(img, kernel, iterations=1)
 
         patch = cv2.bitwise_and(patch, img, mask = None)
-        mask = cv2.bitwise_and(mask, img_erode, mask = None)
+        mask = img_erode
+        mask = cv2.threshold(mask, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+        patch = cv2.threshold(patch, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+        # mask[mask == 255] = [245]
 
-        patch = cv2.GaussianBlur(patch,(7,7),cv2.BORDER_DEFAULT)
-        mask = cv2.GaussianBlur(mask,(7,7),cv2.BORDER_DEFAULT)
+        # mask = cv2.bitwise_and(mask, img_erode, mask = None)
+
+        # patch = cv2.GaussianBlur(patch,(9,9),cv2.BORDER_DEFAULT)
+        # mask = cv2.GaussianBlur(mask,(9,9),cv2.BORDER_DEFAULT)
 
         cv2.imwrite(os.path.join(data_dir, img_dir, '{}.png'.format(str(idx).zfill(8))), patch) 
         cv2.imwrite(os.path.join(data_dir, debug_dir, '{}.png'.format(str(idx).zfill(8))), img) 

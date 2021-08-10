@@ -96,7 +96,6 @@ patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/hicfa-forms/h
 # patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/STATE'
 txt_file_dir = 'text.txt'
 
-
 # maximun number of synthetic words to generate
 num_synthetic_imgs = 100
 train_percentage = 0.8
