@@ -11,6 +11,9 @@ from resize_image import resize_image
 import config as cfg
 from PIL import ImageFont, ImageDraw, Image  
 
+import multiprocessing as mp
+from concurrent.futures.thread import ThreadPoolExecutor
+
 from faker import Faker
 fake = Faker()
 
@@ -52,6 +55,7 @@ debug_val_dir = os.path.join(data_dir, val_dir, debug_dir)
 
 dir_list = [img_train_dir, noisy_train_dir, debug_train_dir, img_val_dir, noisy_val_dir, debug_val_dir]
 for dir_path in dir_list:
+    print(f'dir_path = {dir_path}')
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
 
@@ -76,7 +80,7 @@ def __scale_width(img, long_side):
     new_width = long_side
     new_height = int(ratio * new_width)
 
-    return  cv2.resize(img, (new_width, new_height),interpolation = cv2.INTER_CUBIC)
+    return cv2.resize(img, (new_width, new_height),interpolation = cv2.INTER_CUBIC)
 
 
 def get_patches():
@@ -85,7 +89,7 @@ def get_patches():
         try:
             img_path = os.path.join(patch_dir, filename)
             img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-            img = __scale_width(img, 1700)            
+            img = __scale_width(img, 1792) # 1792 2048  
             patches.append(img)
         except Exception as e:
             raise e
@@ -98,7 +102,6 @@ print('\nnumber of words in the txt file: ', len(words_list))
 
 # scale factor
 scale_h, scale_w = 1, 1
-
 
 img_count = 1
 word_count = 0
@@ -155,13 +158,6 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     # Pass the image to PIL  
     pil_im = Image.fromarray(cv2Image)  
     draw = ImageDraw.Draw(pil_im)  
-    # use a truetype font  
-    # /usr/share/fonts/truetype/freefont/FreeSerif.ttf"
-    # FreeMono.ttf
-    # FreeSerif.ttf
-    # "FreeSerif.ttf","FreeSerifBold.ttf",
-    # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf"]) 
-    # fontPath = os.path.join("/usr/share/fonts/truetype/freefont", fontFace)
 
     # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "oldfax.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Old_Rubber_Stamp.ttf"]) 
     fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
@@ -216,7 +212,7 @@ def print_lines_single(img):
         txt = txt.upper()
             
     txt =  getUpperOrLowerText(txt)
-    trueTypeFontSize = np.random.randint(40, 52)
+    trueTypeFontSize = np.random.randint(45, 60)
 
     # img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1] / 4), np.random.randint(img.shape[0]/3, img.shape[0])), trueTypeFontSize)
     img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
@@ -325,76 +321,54 @@ def get_debug_image(img, noisy_img):
     return debug_img
 
 
-def write_images(img, noisy_img, debug_img):
-    global img_count
-    # img       = 255 - cv2.resize(img,       (0,0), fx = 1/scale_w, fy = 1/scale_h)
-    # noisy_img = 255 - cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
-    # debug_img = 255 - cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)    
-    
-    # img       = 255 - cv2.resize(img,       (0,0), fx = 1/scale_w, fy = 1/scale_h)
-
-    # scale_h = np.random.uniform(.9, 1.1)
-    # scale_w = np.random.uniform(.9, 1.1)
-
-    # if  np.random.choice([True, False], p = [0.65, 0.35]):
-    #    w = img.shape[1] + np.random.randint(0, 30)
-    #    h = img.shape[0] + np.random.randint(0, 30)
-    #    img =  resize_image(img, (h, w), color=(255, 255, 255))
-    #    noisy_img = resize_image(noisy_img, (h, w), color=(255, 255, 255))
-
-    img       = cv2.resize(img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
-    noisy_img = cv2.resize(noisy_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
-    debug_img = cv2.resize(debug_img, (0,0), fx = 1/scale_w, fy = 1/scale_h)
-    
-    img = cv2.threshold(img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    noisy_img = cv2.threshold(noisy_img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1] # Both images will be threasholded
-    
+def write_images(img, noisy_img, debug_img, index):
     img_type = ''
+    print(f'Writing {index}, {train_num}')
 
-    if img_count <= train_num:            
-        cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}.png'.format(str(img_count).zfill(8), img_type)),  noisy_img ) 
-        cv2.imwrite(os.path.join(data_dir, train_dir, noisy_dir, '{}.png'.format(str(img_count).zfill(8), img_type)), img) 
-        cv2.imwrite(os.path.join(data_dir, train_dir, debug_dir, '{}.png'.format(str(img_count).zfill(8),img_type)), debug_img) 
+    if index <= train_num:            
+        cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}.png'.format(str(index).zfill(8), img_type)),  noisy_img ) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, noisy_dir, '{}.png'.format(str(index).zfill(8), img_type)), img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, debug_dir, '{}.png'.format(str(index).zfill(8),img_type)), debug_img) 
     else:
-        cv2.imwrite(os.path.join(data_dir, val_dir, imgs_dir, '{}.png'.format(str(img_count).zfill(8),img_type)), noisy_img) 
-        cv2.imwrite(os.path.join(data_dir, val_dir, noisy_dir, '{}.png'.format(str(img_count).zfill(8),img_type)), img) 
-        cv2.imwrite(os.path.join(data_dir, val_dir, debug_dir, '{}.png'.format(str(img_count).zfill(8),img_type)), debug_img) 
-
-    img_count += 1
-
+        cv2.imwrite(os.path.join(data_dir, val_dir, imgs_dir, '{}.png'.format(str(index).zfill(8),img_type)), noisy_img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, noisy_dir, '{}.png'.format(str(index).zfill(8),img_type)), img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, debug_dir, '{}.png'.format(str(index).zfill(8),img_type)), debug_img) 
 
 print('\nsynthesizing image data...')
 idx = 0
 
-while idx < num_imgs: 
+def __process(index):
+    print(f'index : {index}')
     try:
-        patch = patches_list[np.random.randint(0, len(patches_list))]
+        patch_idx = np.random.randint(0, len(patches_list))
+        patch = patches_list[patch_idx]
         h = patch.shape[0]
         w = patch.shape[1]
 
         # make a blank image
         img = np.ones((h, w), dtype = np.uint8) * 255
         boxes = []
-
-        valid, img = print_lines_aligned(img, boxes)
+        # try to acquire an image 
+        while True:
+            valid, img = print_lines_aligned(img, boxes)
+            if valid:
+                break
         
-        if not valid:
-            continue
-       
-        # turn black/white
-        mask = 255 - patch
-        # mask[mask == 255] = [230]
-        mask[mask  < 255] = [220]
+        # turn black/white into a grayscale mask 
+        mask = patch.copy()
+        if True:
+            mask[mask >= 230] = [245]
+            mask[mask < 230] = [255]
 
         # # write images
-        print(f'idx = {idx}')
+        # print(f'idx/patch_idx = {idx} , {patch_idx}')
 
-        data_dir = '/tmp/form-segmentation'
-        debug_dir = 'debug'
-        img_dir = 'image'
-        mask_dir = 'mask'
+        # data_dir = '/tmp/form-segmentation'
+        # debug_dir = 'debug'
+        # img_dir = 'image'
+        # mask_dir = 'mask'
         
-        kernel = np.ones((5,5), np.uint8)
+        kernel = np.ones((5, 5), np.uint8)
         img_erode = cv2.erode(img, kernel, iterations=1)
 
         patch = cv2.bitwise_and(patch, img, mask = None)
@@ -402,12 +376,15 @@ while idx < num_imgs:
         __img = cv2.threshold(img_erode, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
         mask = cv2.bitwise_and(mask, __img, mask = None)
-        # patch = cv2.GaussianBlur(patch,(9,9),cv2.BORDER_DEFAULT)
-  
-        cv2.imwrite(os.path.join(data_dir, img_dir, '{}.png'.format(str(idx).zfill(8))), patch) 
-        cv2.imwrite(os.path.join(data_dir, debug_dir, '{}.png'.format(str(idx).zfill(8))), img) 
-        cv2.imwrite(os.path.join(data_dir, mask_dir, '{}.png'.format(str(idx).zfill(8))), mask) 
-
-        idx = idx+1 
+        
+        write_images(patch, mask, img, index)
     except Exception as e:
+        raise e
         print(e)
+
+# fireup new threads for processing
+with ThreadPoolExecutor(max_workers=mp.cpu_count()) as executor:
+    for i in range(0, num_imgs):
+        executor.submit(__process, i)
+
+print('All tasks has been finished')
