@@ -88,11 +88,12 @@ patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/
 patch_dir = '/home/greg/dev/unet-denoiser/assets/backgrounds/diagnosis_code'
 patch_dir = '/home/greg/dev/unet-denoiser/assets/backgrounds/diagnosis_code_alpha'
 patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/hicfa-forms/hicfa_paint/train/src'
+patch_dir = '/home/gbugaj/data/private/hicfa-forms/images'
 
 txt_file_dir = 'text.txt'
 
 # maximun number of synthetic words to generate
-num_synthetic_imgs = 10000
+num_synthetic_imgs = 250
 train_percentage = 0.8
 
 test_dir = os.path.join(data_dir, val_dir, noisy_dir)

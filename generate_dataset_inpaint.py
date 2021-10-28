@@ -356,26 +356,23 @@ def __process(index):
         
         # turn black/white into a grayscale mask 
         mask = patch.copy()
-        if True:
+        if False:
             mask[mask >= 230] = [245]
             mask[mask < 230] = [255]
 
         # # write images
         # print(f'idx/patch_idx = {idx} , {patch_idx}')
 
-        # data_dir = '/tmp/form-segmentation'
-        # debug_dir = 'debug'
-        # img_dir = 'image'
-        # mask_dir = 'mask'
-        
-        kernel = np.ones((5, 5), np.uint8)
+        kernel = np.ones((4, 4), np.uint8)
         img_erode = cv2.erode(img, kernel, iterations=1)
 
         patch = cv2.bitwise_and(patch, img, mask = None)
         patch = cv2.threshold(patch, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-        __img = cv2.threshold(img_erode, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+        # __img = cv2.threshold(img_erode, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+        __img = cv2.threshold(mask, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
-        mask = cv2.bitwise_and(mask, __img, mask = None)
+        mask = __img
+        # mask = cv2.bitwise_and(mask, __img, mask = None)
         
         write_images(patch, mask, img, index)
     except Exception as e:
