@@ -88,11 +88,27 @@ patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/formsnippets/
 patch_dir = '/home/greg/dev/unet-denoiser/assets/backgrounds/diagnosis_code'
 patch_dir = '/home/greg/dev/unet-denoiser/assets/backgrounds/diagnosis_code_alpha'
 patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/hicfa-forms/hicfa_paint/train/src'
+patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/hicfa-forms/hicfa_paint/train/statefarm'
 
 txt_file_dir = 'text.txt'
 
 # maximun number of synthetic words to generate
-num_synthetic_imgs = 10000
+num_synthetic_imgs = 1000
 train_percentage = 0.8
 
 test_dir = os.path.join(data_dir, val_dir, noisy_dir)
+
+# Requirement already satisfied: torch in /home/greg/environment/pytorch/lib/python3.8/site-packages (1.9.0+cu111)
+# Requirement already satisfied: torchvision in /home/greg/environment/pytorch/lib/python3.8/site-packages (0.10.0+cu111)
+# Requirement already satisfied: torchaudio in /home/greg/environment/pytorch/lib/python3.8/site-packages (0.9.0)
+# Requirement already satisfied: typing-extensions in /home/greg/environment/pytorch/lib/python3.8/site-packages (from torch) (3.7.4.3)
+# Requirement already satisfied: numpy in /home/greg/environment/pytorch/lib/python3.8/site-packages (from torchvision) (1.19.5)
+# Requirement already satisfied: pillow>=5.3.0 in /home/greg/environment/pytorch/lib/python3.8/site-packages (from torchvision) (8.2.0)
+
+# pip install torch==1.10.0+cu111 torchvision==0.10.0+cu111  -f https://download.pytorch.org/whl/cu111/torch/
+
+
+
+
+
+# python -m pip install --quiet --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu111/torch_nightly.html 
