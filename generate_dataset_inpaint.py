@@ -130,8 +130,6 @@ def get_size(load_size, size):
     return new_w, new_h
 
 
-
-
 def get_patches():
     patches = []
     for filename in os.listdir(patch_dir):
@@ -415,8 +413,8 @@ def __process(index):
         
         # turn black/white into a grayscale mask 
         mask = patch.copy()
-        if False:
-            mask[mask >= 230] = [245]
+        if True:
+            mask[mask >= 230] = [235]
             mask[mask < 230] = [255]
 
         # # write images
@@ -433,19 +431,20 @@ def __process(index):
         patch = cv2.bitwise_and(patch, img, mask = None)
         patch = cv2.threshold(patch, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
         __img = cv2.threshold(img_erode, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+        # __img = cv2.threshold(mask, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
-        # mask = cv2.bitwise_and(mask, __img, mask = None)
-        mask = cv2.bitwise_and(mask, img, mask = None)
+        mask = cv2.bitwise_and(mask, __img, mask = None)
+        # mask = cv2.bitwise_and(mask, img, mask = None)
         
-        # write_images(mask, patch, img, index)
-        write_images(mask, img, img, index)
+        write_images(patch, mask, img, index)
+        # write_images(mask, img, img, index)
         # write_images(mask, patch, img, index)
     except Exception as e:
         raise e
         print(e)
 
 # fireup new threads for processing
-with ThreadPoolExecutor(max_workers=mp.cpu_count()*2) as executor:
+with ThreadPoolExecutor(max_workers=mp.cpu_count()* 2) as executor:
     for i in range(0, num_imgs):
         executor.submit(__process, i)
 
