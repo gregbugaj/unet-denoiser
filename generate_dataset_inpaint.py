@@ -83,16 +83,76 @@ def __scale_width(img, long_side):
     return cv2.resize(img, (new_width, new_height),interpolation = cv2.INTER_CUBIC)
 
 
+
+def resize_image(image, desired_size, color=(255, 255, 255)):
+    ''' Helper function to resize an image while keeping the aspect ratio.
+    Parameter
+    ---------
+    
+    image: np.array
+        The image to be resized.
+
+    desired_size: (int, int)
+        The (height, width) of the resized image
+
+    Return
+    ------
+
+    image: np.array
+        The image of size = desired_size
+    '''
+
+    size = image.shape[:2]
+    if size[0] > desired_size[0] or size[1] > desired_size[1]:
+        ratio_w = float(desired_size[0])/size[0]
+        ratio_h = float(desired_size[1])/size[1]
+        ratio = min(ratio_w, ratio_h)
+        new_size = tuple([int(x*ratio) for x in size])
+        image = cv2.resize(image, (new_size[1], new_size[0]),interpolation = cv2.INTER_CUBIC)
+        size = image.shape
+
+    delta_w = max(0, desired_size[1] - size[1])
+    delta_h = max(0, desired_size[0] - size[0])
+    top, bottom = delta_h//2, delta_h-(delta_h//2)
+    left, right = delta_w//2, delta_w-(delta_w//2)
+
+    image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
+    return image
+
+
+def get_size(load_size, size):
+    w, h = size
+    new_w = w
+
+    new_w = load_size
+    new_h = load_size * h // w
+
+    return new_w, new_h
+
+
+
+
 def get_patches():
     patches = []
     for filename in os.listdir(patch_dir):
         try:
             img_path = os.path.join(patch_dir, filename)
             img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-            img = __scale_width(img, 1792) # 1792 2048  
+            img = __scale_width(img, 1590) # 1792 2048  
+            # long_side = 1792
+            # size = (img.shape[1], img.shape[0]) # w,h
+            # new_size = get_size(long_side, size)
+            # image_resized = cv2.resize(img, (new_size[0], new_size[1]), interpolation = cv2.INTER_CUBIC)
+
+            # height = new_size[1]
+            # width = new_size[0]
+
+            # img = resize_image(image_resized, (height, width), color=(255, 255, 255))
+            
             patches.append(img)
         except Exception as e:
             raise e
+            
     return patches
 
 words_list = get_word_list()
@@ -212,7 +272,7 @@ def print_lines_single(img):
         txt = txt.upper()
             
     txt =  getUpperOrLowerText(txt)
-    trueTypeFontSize = np.random.randint(45, 60)
+    trueTypeFontSize = np.random.randint(32, 60)
 
     # img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1] / 4), np.random.randint(img.shape[0]/3, img.shape[0])), trueTypeFontSize)
     img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
@@ -221,7 +281,7 @@ def print_lines_single(img):
 
 def print_lines_aligned(img, boxes):
     def getUpperOrLowerText(txt):
-        if np.random.choice([0, 1], p = [0.5, 0.5]) :
+        if np.random.choice([0, 1], p = [0.7, 0.3]) :
             return txt.upper()
         return txt.lower()    
 
@@ -247,7 +307,7 @@ def print_lines_aligned(img, boxes):
 
         return getUpperOrLowerText(txt)
    
-    trueTypeFontSize = np.random.randint(28, 42)
+    trueTypeFontSize = np.random.randint(18, 42)
     xy = (np.random.randint(0, img.shape[1] / 10), np.random.randint(0, img.shape[0] / 8))
 
     w = img.shape[1]
