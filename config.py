@@ -93,7 +93,7 @@ patch_dir = '/home/greg/dev/assets-private/cvat/TRAINING-ON-DD-GPU/hicfa-forms/h
 txt_file_dir = 'text.txt'
 
 # maximun number of synthetic words to generate
-num_synthetic_imgs = 1000
+num_synthetic_imgs = 10
 train_percentage = 0.8
 
 test_dir = os.path.join(data_dir, val_dir, noisy_dir)
@@ -106,9 +106,6 @@ test_dir = os.path.join(data_dir, val_dir, noisy_dir)
 # Requirement already satisfied: pillow>=5.3.0 in /home/greg/environment/pytorch/lib/python3.8/site-packages (from torchvision) (8.2.0)
 
 # pip install torch==1.10.0+cu111 torchvision==0.10.0+cu111  -f https://download.pytorch.org/whl/cu111/torch/
-
-
-
 
 
 # python -m pip install --quiet --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cu111/torch_nightly.html 

@@ -72,7 +72,6 @@ def get_word_list():
 
     return words_list
 
-
 def __scale_width(img, long_side):
     size = img.shape[:2]
     oh,ow = size
@@ -81,7 +80,6 @@ def __scale_width(img, long_side):
     new_height = int(ratio * new_width)
 
     return cv2.resize(img, (new_width, new_height),interpolation = cv2.INTER_CUBIC)
-
 
 
 def resize_image(image, desired_size, color=(255, 255, 255)):
@@ -129,25 +127,41 @@ def get_size(load_size, size):
 
     return new_w, new_h
 
+def __frame_image(img, size):
+    h = img.shape[0]
+    w = img.shape[1]
+
+    # Frame our target image 1792x2494
+    back = np.ones(size, dtype=np.uint8)*235
+    hh, ww = back.shape
+    # print(f'hh, ww = {hh}, {ww}')
+
+    # compute xoff and yoff for placement of upper left corner of resized image
+    yoff = round((hh-h)/2)
+    xoff = round((ww-w)/2)
+    # print(f'xoff, yoff = {xoff}, {yoff}')
+
+    # use numpy indexing to place the resized image in the center of background image
+    result = back.copy()
+    result[yoff:yoff+h, xoff:xoff+w] = img
+
+    return result
 
 def get_patches():
     patches = []
+    resolutions = [128*14, 128*13, 128*12, 128*11]
     for filename in os.listdir(patch_dir):
         try:
             img_path = os.path.join(patch_dir, filename)
-            img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-            img = __scale_width(img, 1590) # 1792 2048  
-            # long_side = 1792
-            # size = (img.shape[1], img.shape[0]) # w,h
-            # new_size = get_size(long_side, size)
-            # image_resized = cv2.resize(img, (new_size[0], new_size[1]), interpolation = cv2.INTER_CUBIC)
+            src_img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+            for k in range(len(resolutions) * 8):
+                index = random.randint(0, len(resolutions) - 1)
+                res = resolutions[index]
+                # Scale to our resolution then frame
+                img = __scale_width(src_img, res) # 1792 2048  
+                img = __frame_image(img, (2494, 1792))
+                patches.append(img)
 
-            # height = new_size[1]
-            # width = new_size[0]
-
-            # img = resize_image(image_resized, (height, width), color=(255, 255, 255))
-            
-            patches.append(img)
         except Exception as e:
             raise e
             
@@ -279,7 +293,7 @@ def print_lines_single(img):
 
 def print_lines_aligned(img, boxes):
     def getUpperOrLowerText(txt):
-        if np.random.choice([0, 1], p = [0.7, 0.3]) :
+        if np.random.choice([0, 1], p = [0.4, 0.6]) :
             return txt.upper()
         return txt.lower()    
 
@@ -289,9 +303,7 @@ def print_lines_aligned(img, boxes):
 
         if np.random.choice([0, 1], p = [0.8, 0.2]) :
             txt = get_text()
-            # txt = fake.name()
         else:
-            # txt =  get_phone()  #fake.address()
             letters = string.digits 
             c = np.random.randint(1, 9)
             txt = (''.join(random.choice(letters) for i in range(c)))
@@ -300,8 +312,8 @@ def print_lines_aligned(img, boxes):
         # c = np.random.randint(1, 9)
         # txt = (''.join(random.choice(letters) for i in range(c)))
         
-        if np.random.choice([0, 1], p = [0.5, 0.5]):
-            txt = txt.upper()
+        # if np.random.choice([0, 1], p = [0.8, 0.2]):
+        #     txt = txt.upper()
 
         return getUpperOrLowerText(txt)
    
@@ -424,7 +436,7 @@ def __process(index):
         # debug_dir = 'debug'
         # img_dir = 'image'
         # mask_dir = 'mask'
-        
+
         kernel = np.ones((4, 4), np.uint8)
         img_erode = cv2.erode(img, kernel, iterations=1)
 
@@ -435,7 +447,7 @@ def __process(index):
 
         mask = cv2.bitwise_and(mask, __img, mask = None)
         # mask = cv2.bitwise_and(mask, img, mask = None)
-        
+
         write_images(patch, mask, img, index)
         # write_images(mask, img, img, index)
         # write_images(mask, patch, img, index)
