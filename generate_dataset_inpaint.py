@@ -234,6 +234,9 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     # fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "oldfax.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "Old_Rubber_Stamp.ttf"]) 
     fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeMonoBold.ttf", "FreeSans.ttf"]) 
     fontFace = np.random.choice([ "FreeMono.ttf", "FreeMonoBold.ttf", "FreeSans.ttf", "ColourMePurple.ttf", "Pelkistettyatodellisuutta.ttf" ,"SpotlightTypewriterNC.ttf"]) 
+    
+    fonts = os.listdir('./assets/fonts/truetype')
+    fontFace = np.random.choice(fonts)
     fontPath = os.path.join("./assets/fonts/truetype", fontFace)
 
     font = ImageFont.truetype(fontPath, size)
@@ -295,7 +298,7 @@ def print_lines_aligned(img, boxes):
     def getUpperOrLowerText(txt):
         if np.random.choice([0, 1], p = [0.4, 0.6]) :
             return txt.upper()
-        return txt.lower()    
+        return txt.lower().capitalize()
 
     def make_txt():
         # get a line of text
@@ -441,8 +444,10 @@ def __process(index):
         img_erode = cv2.erode(img, kernel, iterations=1)
 
         patch = cv2.bitwise_and(patch, img, mask = None)
-        patch = cv2.threshold(patch, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-        __img = cv2.threshold(img_erode, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+        patch = cv2.threshold(patch, 127, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+        __img = cv2.threshold(img_erode, 127, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+        # __img = img_erode
+        
         # __img = cv2.threshold(mask, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
         mask = cv2.bitwise_and(mask, __img, mask = None)
@@ -452,12 +457,14 @@ def __process(index):
         # write_images(mask, img, img, index)
         # write_images(mask, patch, img, index)
     except Exception as e:
-        raise e
         print(e)
+        # raise e
+
 
 # fireup new threads for processing
-with ThreadPoolExecutor(max_workers=mp.cpu_count()* 2) as executor:
+with ThreadPoolExecutor(max_workers=mp.cpu_count() ** 2) as executor:
     for i in range(0, num_imgs):
         executor.submit(__process, i)
 
 print('All tasks has been finished')
+7
