@@ -320,7 +320,7 @@ def print_lines_aligned(img, boxes):
 
         return getUpperOrLowerText(txt)
    
-    trueTypeFontSize = np.random.randint(18, 42)
+    trueTypeFontSize = np.random.randint(32, 48)
     xy = (np.random.randint(0, img.shape[1] / 10), np.random.randint(0, img.shape[0] / 8))
 
     w = img.shape[1]
@@ -398,13 +398,13 @@ def write_images(img, noisy_img, debug_img, index):
     print(f'Writing {index}, {train_num}')
 
     if index <= train_num:            
-        cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}.png'.format(str(index).zfill(8), img_type)), noisy_img ) 
-        cv2.imwrite(os.path.join(data_dir, train_dir, noisy_dir, '{}.png'.format(str(index).zfill(8), img_type)), img) 
-        cv2.imwrite(os.path.join(data_dir, train_dir, debug_dir, '{}.png'.format(str(index).zfill(8),img_type)), debug_img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, 'hw_{}.png'.format(str(index).zfill(8), img_type)), noisy_img ) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, noisy_dir, 'hw_{}.png'.format(str(index).zfill(8), img_type)), img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, debug_dir, 'hw_{}.png'.format(str(index).zfill(8),img_type)), debug_img) 
     else:
-        cv2.imwrite(os.path.join(data_dir, val_dir, imgs_dir, '{}.png'.format(str(index).zfill(8),img_type)), noisy_img ) 
-        cv2.imwrite(os.path.join(data_dir, val_dir, noisy_dir, '{}.png'.format(str(index).zfill(8),img_type)), img) 
-        cv2.imwrite(os.path.join(data_dir, val_dir, debug_dir, '{}.png'.format(str(index).zfill(8),img_type)), debug_img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, imgs_dir, 'hw_{}.png'.format(str(index).zfill(8),img_type)), noisy_img ) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, noisy_dir, 'hw_{}.png'.format(str(index).zfill(8),img_type)), img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, debug_dir, 'hw_{}.png'.format(str(index).zfill(8),img_type)), debug_img) 
 
 print('\nsynthesizing image data...')
 idx = 0
