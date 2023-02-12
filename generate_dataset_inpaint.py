@@ -149,26 +149,28 @@ def __frame_image(img, size):
 
 def get_patches():
     patches = []
-    resolutions = [128*14, 128*13, 128*12, 128*11]
+    resolutions = []
+    scales = [128*14, 128*13, 128*12, 128*11]
+
     for filename in os.listdir(patch_dir):
         try:
             img_path = os.path.join(patch_dir, filename)
             src_img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-            for k in range(len(resolutions) * 8):
-                index = random.randint(0, len(resolutions) - 1)
-                res = resolutions[index]
+            for k in range(len(scales) * 12):
+                index = random.randint(0, len(scales) - 1)
+                res = scales[index]
                 # Scale to our resolution then frame
                 img = __scale_width(src_img, res) # 1792 2048  
                 img = __frame_image(img, (2494, 1792))
                 patches.append(img)
-
+                resolutions.append(index)
         except Exception as e:
             raise e
             
-    return patches
+    return patches,resolutions
 
 words_list = get_word_list()
-patches_list = get_patches()
+patches_list, resolutions_list = get_patches()
 
 print('\nnumber of words in the txt file: ', len(words_list))
 
@@ -261,40 +263,8 @@ def drawTrueTypeTextOnImage(cv2Image, text, xy, size):
     cv2Image = np.array(pil_im)
     return True, cv2Image, (size_width, size_height)
 
-def print_lines_single(img):
-    def getUpperOrLowerText(txt):
-        if np.random.choice([0, 1], p = [0.5, 0.5]) :
-            return txt.upper()
-        return txt.lower()    
 
-    # get a line of text
-    txt = get_text()
-    txt = fake.name()
-    # txt = get_phone()
-
-    if np.random.choice([0, 1], p = [0.5, 0.5]) :
-        txt = get_text()
-        txt = fake.name()
-    else:
-        txt =  get_phone()  #fake.address()
-
-    # letters = string.digits 
-    # c = np.random.randint(4, 9)
-    # txt = (''.join(random.choice(letters) for i in range(c)))
-    # txt = get_phone() 
-
-    if np.random.choice([0, 1], p = [0.5, 0.5]):
-        txt = txt.upper()
-            
-    txt =  getUpperOrLowerText(txt)
-    trueTypeFontSize = np.random.randint(32, 60)
-
-    # img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1] / 4), np.random.randint(img.shape[0]/3, img.shape[0])), trueTypeFontSize)
-    img = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
-
-    return img
-
-def print_lines_aligned(img, boxes):
+def print_lines_aligned(img, boxes, resolution):
     def getUpperOrLowerText(txt):
         if np.random.choice([0, 1], p = [0.4, 0.6]) :
             return txt.upper()
@@ -304,23 +274,29 @@ def print_lines_aligned(img, boxes):
         # get a line of text
         txt = get_text()
 
-        if np.random.choice([0, 1], p = [0.8, 0.2]) :
+        if np.random.choice([0, 1], p = [0.3, 0.7]) :
             txt = get_text()
         else:
-            letters = string.digits 
-            c = np.random.randint(1, 9)
-            txt = (''.join(random.choice(letters) for i in range(c)))
-
-        # letters = '171717171717171717'
-        # c = np.random.randint(1, 9)
-        # txt = (''.join(random.choice(letters) for i in range(c)))
-        
-        # if np.random.choice([0, 1], p = [0.8, 0.2]):
-        #     txt = txt.upper()
-
+            if np.random.choice([0, 1], p = [0.5, 0.5]) :
+                letters = 'X'+string.digits
+                c = np.random.randint(1, 9)
+                txt = (''.join(random.choice(letters) for i in range(c)))
+            else:
+                letters = '01X'
+                c = np.random.randint(1, 3)
+                txt = (''.join(random.choice(letters) for i in range(c)))
+        # letters = '✅✔✓✗☒' # Most fonts that we have will not render the marks correctly
         return getUpperOrLowerText(txt)
    
-    trueTypeFontSize = np.random.randint(32, 48)
+    # print(f'resolution = {resolution}')
+    fontsizes = [
+        (45, 60),
+        (35, 50),
+        (25, 40),
+        (20, 30),
+    ]
+
+    trueTypeFontSize = np.random.randint(fontsizes[resolution][0], fontsizes[resolution][1])
     xy = (np.random.randint(0, img.shape[1] / 10), np.random.randint(0, img.shape[0] / 8))
 
     w = img.shape[1]
@@ -351,40 +327,6 @@ def print_lines_aligned(img, boxes):
 
     return True, img
 
-
-def print_lines(img):
-    def getUpperOrLowerText(txt):
-        if np.random.choice([0, 1], p = [0.5, 0.5]) :
-            return txt.upper()
-        return txt.lower()    
-
-    # get a line of text
-    if np.random.choice([0, 1], p = [0.5, 0.5]) :
-        txt = get_text()
-    else:
-        letters = string.digits 
-        c = np.random.randint(1, 9)
-        txt = (''.join(random.choice(letters) for i in range(c)))
-
-    if np.random.choice([0, 1], p = [0.5, 0.5]):
-        txt = txt.upper()
-
-    # # txt = fake.name()
-    # letters = string.ascii_lowercase 
-    # c = np.random.randint(1, 4)
-    # txt = (''.join(random.choice(letters) for i in range(c)))
-
-    # txt = get_phone()
-    txt = fake.name()
-    # txt = fake.address()
-    txt = getUpperOrLowerText(txt)
-
-    trueTypeFontSize = np.random.randint(32, 62)
-    valid, img, _ = drawTrueTypeTextOnImage(img, txt, (np.random.randint(0, img.shape[1]), np.random.randint(0, img.shape[0])), trueTypeFontSize)
-    
-    return valid, img
-
-
 def get_debug_image(img, noisy_img):
     debug_img = np.ones((2*h, w), dtype = np.uint8)*255 # to visualize the generated images (clean and noisy)
     debug_img[0:h, :] = img
@@ -398,13 +340,13 @@ def write_images(img, noisy_img, debug_img, index):
     print(f'Writing {index}, {train_num}')
 
     if index <= train_num:            
-        cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, 'hw_{}.png'.format(str(index).zfill(8), img_type)), noisy_img ) 
-        cv2.imwrite(os.path.join(data_dir, train_dir, noisy_dir, 'hw_{}.png'.format(str(index).zfill(8), img_type)), img) 
-        cv2.imwrite(os.path.join(data_dir, train_dir, debug_dir, 'hw_{}.png'.format(str(index).zfill(8),img_type)), debug_img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, imgs_dir, '{}.png'.format(str(index).zfill(8), img_type)), noisy_img ) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, noisy_dir, '{}.png'.format(str(index).zfill(8), img_type)), img) 
+        cv2.imwrite(os.path.join(data_dir, train_dir, debug_dir, '{}.png'.format(str(index).zfill(8),img_type)), debug_img) 
     else:
-        cv2.imwrite(os.path.join(data_dir, val_dir, imgs_dir, 'hw_{}.png'.format(str(index).zfill(8),img_type)), noisy_img ) 
-        cv2.imwrite(os.path.join(data_dir, val_dir, noisy_dir, 'hw_{}.png'.format(str(index).zfill(8),img_type)), img) 
-        cv2.imwrite(os.path.join(data_dir, val_dir, debug_dir, 'hw_{}.png'.format(str(index).zfill(8),img_type)), debug_img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, imgs_dir, '{}.png'.format(str(index).zfill(8),img_type)), noisy_img ) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, noisy_dir, '{}.png'.format(str(index).zfill(8),img_type)), img) 
+        cv2.imwrite(os.path.join(data_dir, val_dir, debug_dir, '{}.png'.format(str(index).zfill(8),img_type)), debug_img) 
 
 print('\nsynthesizing image data...')
 idx = 0
@@ -414,6 +356,7 @@ def __process(index):
     try:
         patch_idx = np.random.randint(0, len(patches_list))
         patch = patches_list[patch_idx]
+        resolution = resolutions_list[patch_idx]
         h = patch.shape[0]
         w = patch.shape[1]
 
@@ -422,7 +365,7 @@ def __process(index):
         boxes = []
         # try to acquire an image 
         while True:
-            valid, img = print_lines_aligned(img, boxes)
+            valid, img = print_lines_aligned(img, boxes, resolution)
             if valid:
                 break
         
@@ -462,9 +405,8 @@ def __process(index):
 
 
 # fireup new threads for processing
-with ThreadPoolExecutor(max_workers=mp.cpu_count() ** 2) as executor:
+with ThreadPoolExecutor(max_workers=mp.cpu_count() * 2) as executor:
     for i in range(0, num_imgs):
         executor.submit(__process, i)
 
 print('All tasks has been finished')
-7

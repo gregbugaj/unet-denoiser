@@ -8,15 +8,15 @@ if __name__ == '__main__':
     letters = string.digits
     # print ( ''.join(random.choice(letters) for i in range(10)) )
     choice = np.random.choice([0,1], p =[0.3, 0.7])
-    _file = open('digits.txt', 'w') 
+    _file = open('digits-001.txt', 'w') 
 
-    for i in tqdm(range(100000)):
-        k = random.randint(1, 8)
-        n = np.random.choice(['', '$', '$ ','-'], p =[0.5, 0.2, 0.2, .1]) 
+    for i in tqdm(range(250000)):
+        k = random.randint(1, 16)
+        n = np.random.choice(['', '$', '-'], p =[0.5, 0.3, 0.2]) 
         n += (''.join(random.choice(letters) for i in range(k)))
         if np.random.choice([0,1], p =[0.3, 0.7]) == 1:
             n += '.'
-            n += ''.join(random.choice(letters) for i in range(k//2))
+            n += ''.join(random.choice(letters) for i in range(k//4))
 
         _file.write(n)
         _file.write('\n')
