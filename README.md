@@ -1,5 +1,9 @@
 # unet-denoiser
 
+THIS PROJECT HAVE BEEN SUPERSEDED BY
+
+https://github.com/marieai/marie-ai
+
 
 # Feature loss function
 Need to implement custom loss function
